@@ -1,0 +1,189 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXFileReference section */
+		B6D35AF7148A9D4900CE3830 /* libLaunchPlayVST.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libLaunchPlayVST.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		B6D35AF4148A9D4900CE3830 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		B6D35AEC148A9D4900CE3830 = {
+			isa = PBXGroup;
+			children = (
+				B6D35AF8148A9D4900CE3830 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		B6D35AF8148A9D4900CE3830 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B6D35AF7148A9D4900CE3830 /* libLaunchPlayVST.dylib */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		B6D35AF5148A9D4900CE3830 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		B6D35AF6148A9D4900CE3830 /* LaunchPlayVST */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B6D35AFB148A9D4900CE3830 /* Build configuration list for PBXNativeTarget "LaunchPlayVST" */;
+			buildPhases = (
+				B6D35AF3148A9D4900CE3830 /* Sources */,
+				B6D35AF4148A9D4900CE3830 /* Frameworks */,
+				B6D35AF5148A9D4900CE3830 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LaunchPlayVST;
+			productName = LaunchPlayVST;
+			productReference = B6D35AF7148A9D4900CE3830 /* libLaunchPlayVST.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		B6D35AEE148A9D4900CE3830 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0420;
+			};
+			buildConfigurationList = B6D35AF1148A9D4900CE3830 /* Build configuration list for PBXProject "LaunchPlayVST" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = B6D35AEC148A9D4900CE3830;
+			productRefGroup = B6D35AF8148A9D4900CE3830 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				B6D35AF6148A9D4900CE3830 /* LaunchPlayVST */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		B6D35AF3148A9D4900CE3830 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		B6D35AF9148A9D4900CE3830 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		B6D35AFA148A9D4900CE3830 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		B6D35AFC148A9D4900CE3830 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				EXECUTABLE_PREFIX = lib;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		B6D35AFD148A9D4900CE3830 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				EXECUTABLE_PREFIX = lib;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		B6D35AF1148A9D4900CE3830 /* Build configuration list for PBXProject "LaunchPlayVST" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B6D35AF9148A9D4900CE3830 /* Debug */,
+				B6D35AFA148A9D4900CE3830 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B6D35AFB148A9D4900CE3830 /* Build configuration list for PBXNativeTarget "LaunchPlayVST" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B6D35AFC148A9D4900CE3830 /* Debug */,
+				B6D35AFD148A9D4900CE3830 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = B6D35AEE148A9D4900CE3830 /* Project object */;
+}
