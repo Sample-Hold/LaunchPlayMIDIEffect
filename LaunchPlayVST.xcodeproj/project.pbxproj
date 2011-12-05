@@ -9,9 +9,6 @@
 /* Begin PBXBuildFile section */
 		B6D35B43148AAF3900CE3830 /* LaunchPlay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6D35B13148AA31500CE3830 /* LaunchPlay.cpp */; };
 		B6D35B53148AB03700CE3830 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B6D35B51148AB03700CE3830 /* InfoPlist.strings */; };
-		B6D35B5F148AB35400CE3830 /* audioeffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6D35B59148AB35400CE3830 /* audioeffect.cpp */; };
-		B6D35B61148AB35400CE3830 /* audioeffectx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6D35B5B148AB35400CE3830 /* audioeffectx.cpp */; };
-		B6D35B63148AB35400CE3830 /* vstplugmain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6D35B5D148AB35400CE3830 /* vstplugmain.cpp */; };
 		B6D35B6C148AB9CD00CE3830 /* LaunchPlay.vst in CopyFiles */ = {isa = PBXBuildFile; fileRef = B6D35B31148AAF0D00CE3830 /* LaunchPlay.vst */; };
 /* End PBXBuildFile section */
 
@@ -35,15 +32,6 @@
 		B6D35B4F148AB00C00CE3830 /* LaunchPlay-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "LaunchPlay-Info.plist"; sourceTree = "<group>"; };
 		B6D35B52148AB03700CE3830 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		B6D35B54148AB26000CE3830 /* LaunchPlay-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LaunchPlay-Prefix.pch"; sourceTree = "<group>"; };
-		B6D35B58148AB35400CE3830 /* aeffeditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aeffeditor.h; path = ../../../vstsdk2.4/public.sdk/source/vst2.x/aeffeditor.h; sourceTree = "<group>"; };
-		B6D35B59148AB35400CE3830 /* audioeffect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = audioeffect.cpp; path = ../../../vstsdk2.4/public.sdk/source/vst2.x/audioeffect.cpp; sourceTree = "<group>"; };
-		B6D35B5A148AB35400CE3830 /* audioeffect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = audioeffect.h; path = ../../../vstsdk2.4/public.sdk/source/vst2.x/audioeffect.h; sourceTree = "<group>"; };
-		B6D35B5B148AB35400CE3830 /* audioeffectx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = audioeffectx.cpp; path = ../../../vstsdk2.4/public.sdk/source/vst2.x/audioeffectx.cpp; sourceTree = "<group>"; };
-		B6D35B5C148AB35400CE3830 /* audioeffectx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = audioeffectx.h; path = ../../../vstsdk2.4/public.sdk/source/vst2.x/audioeffectx.h; sourceTree = "<group>"; };
-		B6D35B5D148AB35400CE3830 /* vstplugmain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = vstplugmain.cpp; path = ../../../vstsdk2.4/public.sdk/source/vst2.x/vstplugmain.cpp; sourceTree = "<group>"; };
-		B6D35B64148AB36000CE3830 /* aeffect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aeffect.h; path = ../../../vstsdk2.4/pluginterfaces/vst2.x/aeffect.h; sourceTree = "<group>"; };
-		B6D35B65148AB36000CE3830 /* aeffectx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aeffectx.h; path = ../../../vstsdk2.4/pluginterfaces/vst2.x/aeffectx.h; sourceTree = "<group>"; };
-		B6D35B66148AB36000CE3830 /* vstfxstore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vstfxstore.h; path = ../../../vstsdk2.4/pluginterfaces/vst2.x/vstfxstore.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -68,7 +56,6 @@
 		B6D35B01148AA1B100CE3830 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				B6D35B57148AB32D00CE3830 /* Imported Sources */,
 				B6D35B10148AA2CF00CE3830 /* LaunchPlay */,
 			);
 			path = Sources;
@@ -98,22 +85,6 @@
 			children = (
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		B6D35B57148AB32D00CE3830 /* Imported Sources */ = {
-			isa = PBXGroup;
-			children = (
-				B6D35B64148AB36000CE3830 /* aeffect.h */,
-				B6D35B65148AB36000CE3830 /* aeffectx.h */,
-				B6D35B66148AB36000CE3830 /* vstfxstore.h */,
-				B6D35B58148AB35400CE3830 /* aeffeditor.h */,
-				B6D35B59148AB35400CE3830 /* audioeffect.cpp */,
-				B6D35B5A148AB35400CE3830 /* audioeffect.h */,
-				B6D35B5B148AB35400CE3830 /* audioeffectx.cpp */,
-				B6D35B5C148AB35400CE3830 /* audioeffectx.h */,
-				B6D35B5D148AB35400CE3830 /* vstplugmain.cpp */,
-			);
-			name = "Imported Sources";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -178,9 +149,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				B6D35B43148AAF3900CE3830 /* LaunchPlay.cpp in Sources */,
-				B6D35B5F148AB35400CE3830 /* audioeffect.cpp in Sources */,
-				B6D35B61148AB35400CE3830 /* audioeffectx.cpp in Sources */,
-				B6D35B63148AB35400CE3830 /* vstplugmain.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
