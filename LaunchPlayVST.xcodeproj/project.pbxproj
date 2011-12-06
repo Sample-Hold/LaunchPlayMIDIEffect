@@ -13,6 +13,16 @@
 		B6E46CD1148C563700B27E81 /* audioeffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6E46CCC148C563700B27E81 /* audioeffect.cpp */; };
 		B6E46CD2148C563700B27E81 /* audioeffectx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6E46CCE148C563700B27E81 /* audioeffectx.cpp */; };
 		B6E46CD3148C563700B27E81 /* vstplugmain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6E46CD0148C563700B27E81 /* vstplugmain.cpp */; };
+		B6E46CD8148C573800B27E81 /* aeffect.h in Headers */ = {isa = PBXBuildFile; fileRef = B6E46CD4148C564300B27E81 /* aeffect.h */; };
+		B6E46CD9148C573800B27E81 /* aeffectx.h in Headers */ = {isa = PBXBuildFile; fileRef = B6E46CD5148C564300B27E81 /* aeffectx.h */; };
+		B6E46CDA148C573800B27E81 /* vstfxstore.h in Headers */ = {isa = PBXBuildFile; fileRef = B6E46CD6148C564300B27E81 /* vstfxstore.h */; };
+		B6E46CDB148C573800B27E81 /* aeffeditor.h in Headers */ = {isa = PBXBuildFile; fileRef = B6E46CCB148C563700B27E81 /* aeffeditor.h */; };
+		B6E46CDC148C573800B27E81 /* audioeffect.h in Headers */ = {isa = PBXBuildFile; fileRef = B6E46CCD148C563700B27E81 /* audioeffect.h */; };
+		B6E46CDD148C573800B27E81 /* audioeffectx.h in Headers */ = {isa = PBXBuildFile; fileRef = B6E46CCF148C563700B27E81 /* audioeffectx.h */; };
+		B6E46CDE148C573800B27E81 /* LaunchPlay.h in Headers */ = {isa = PBXBuildFile; fileRef = B6D35B11148AA30500CE3830 /* LaunchPlay.h */; };
+		B6E58D33148E33A800AE0B4E /* Mindstorm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6E58D32148E33A800AE0B4E /* Mindstorm.cpp */; };
+		B6E58D35148EB8DC00AE0B4E /* LaunchPlayVersion.h in Headers */ = {isa = PBXBuildFile; fileRef = B6E58D34148EB8DC00AE0B4E /* LaunchPlayVersion.h */; };
+		B6E66E8F148D92FC002BE23F /* Mindstorm.h in Headers */ = {isa = PBXBuildFile; fileRef = B6E66E8E148D92FC002BE23F /* Mindstorm.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -44,6 +54,9 @@
 		B6E46CD4148C564300B27E81 /* aeffect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aeffect.h; path = ../../../vstsdk2.4/pluginterfaces/vst2.x/aeffect.h; sourceTree = "<group>"; };
 		B6E46CD5148C564300B27E81 /* aeffectx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aeffectx.h; path = ../../../vstsdk2.4/pluginterfaces/vst2.x/aeffectx.h; sourceTree = "<group>"; };
 		B6E46CD6148C564300B27E81 /* vstfxstore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vstfxstore.h; path = ../../../vstsdk2.4/pluginterfaces/vst2.x/vstfxstore.h; sourceTree = "<group>"; };
+		B6E58D32148E33A800AE0B4E /* Mindstorm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Mindstorm.cpp; sourceTree = "<group>"; };
+		B6E58D34148EB8DC00AE0B4E /* LaunchPlayVersion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LaunchPlayVersion.h; sourceTree = "<group>"; };
+		B6E66E8E148D92FC002BE23F /* Mindstorm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Mindstorm.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -87,8 +100,11 @@
 		B6D35B10148AA2CF00CE3830 /* LaunchPlay */ = {
 			isa = PBXGroup;
 			children = (
+				B6E58D34148EB8DC00AE0B4E /* LaunchPlayVersion.h */,
 				B6D35B11148AA30500CE3830 /* LaunchPlay.h */,
 				B6D35B13148AA31500CE3830 /* LaunchPlay.cpp */,
+				B6E66E8E148D92FC002BE23F /* Mindstorm.h */,
+				B6E58D32148E33A800AE0B4E /* Mindstorm.cpp */,
 			);
 			name = LaunchPlay;
 			sourceTree = "<group>";
@@ -118,11 +134,31 @@
 		};
 /* End PBXGroup section */
 
+/* Begin PBXHeadersBuildPhase section */
+		B6E46CD7148C572500B27E81 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B6E46CD8148C573800B27E81 /* aeffect.h in Headers */,
+				B6E46CD9148C573800B27E81 /* aeffectx.h in Headers */,
+				B6E46CDA148C573800B27E81 /* vstfxstore.h in Headers */,
+				B6E46CDB148C573800B27E81 /* aeffeditor.h in Headers */,
+				B6E46CDC148C573800B27E81 /* audioeffect.h in Headers */,
+				B6E46CDD148C573800B27E81 /* audioeffectx.h in Headers */,
+				B6E46CDE148C573800B27E81 /* LaunchPlay.h in Headers */,
+				B6E66E8F148D92FC002BE23F /* Mindstorm.h in Headers */,
+				B6E58D35148EB8DC00AE0B4E /* LaunchPlayVersion.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
 /* Begin PBXNativeTarget section */
 		B6D35B30148AAF0D00CE3830 /* LaunchPlay */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = B6D35B40148AAF0E00CE3830 /* Build configuration list for PBXNativeTarget "LaunchPlay" */;
 			buildPhases = (
+				B6E46CD7148C572500B27E81 /* Headers */,
 				B6D35B2D148AAF0D00CE3830 /* Sources */,
 				B6D35B2F148AAF0D00CE3830 /* Resources */,
 				B6D35B6B148AB98A00CE3830 /* CopyFiles */,
@@ -181,6 +217,7 @@
 				B6E46CD1148C563700B27E81 /* audioeffect.cpp in Sources */,
 				B6E46CD2148C563700B27E81 /* audioeffectx.cpp in Sources */,
 				B6E46CD3148C563700B27E81 /* vstplugmain.cpp in Sources */,
+				B6E58D33148E33A800AE0B4E /* Mindstorm.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -212,6 +249,7 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -223,7 +261,10 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_PKGINFO_FILE = YES;
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/../../vstsdk2.4/";
+				HEADER_SEARCH_PATHS = (
+					/opt/local/include/,
+					"$(SRCROOT)/../../vstsdk2.4/",
+				);
 				INFOPLIST_FILE = "Resources/LaunchPlay-Info.plist";
 				INFOPLIST_PREPROCESS = NO;
 				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Audio/Plug-Ins/VST";
@@ -246,13 +287,17 @@
 				EXPORTED_SYMBOLS_FILE = "";
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_VERSION = "";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_PKGINFO_FILE = YES;
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/../../vstsdk2.4/";
+				HEADER_SEARCH_PATHS = (
+					/opt/local/include/,
+					"$(SRCROOT)/../../vstsdk2.4/",
+				);
 				INFOPLIST_FILE = "Resources/LaunchPlay-Info.plist";
 				INFOPLIST_PREPROCESS = NO;
 				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Audio/Plug-Ins/VST";
@@ -270,13 +315,19 @@
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Resources/LaunchPlay-Prefix.pch";
+				GCC_VERSION = "";
 				GENERATE_PKGINFO_FILE = YES;
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/../../vstsdk2.4/";
+				HEADER_SEARCH_PATHS = (
+					/opt/local/include/,
+					"$(SRCROOT)/../../vstsdk2.4/",
+				);
 				INFOPLIST_FILE = "Resources/LaunchPlay-Info.plist";
 				INFOPLIST_PREPROCESS = NO;
 				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Audio/Plug-Ins/VST";
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = "";
+				USER_HEADER_SEARCH_PATHS = "";
 				WRAPPER_EXTENSION = vst;
 			};
 			name = Debug;
@@ -289,13 +340,19 @@
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Resources/LaunchPlay-Prefix.pch";
+				GCC_VERSION = "";
 				GENERATE_PKGINFO_FILE = YES;
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/../../vstsdk2.4/";
+				HEADER_SEARCH_PATHS = (
+					/opt/local/include/,
+					"$(SRCROOT)/../../vstsdk2.4/",
+				);
 				INFOPLIST_FILE = "Resources/LaunchPlay-Info.plist";
 				INFOPLIST_PREPROCESS = NO;
 				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Audio/Plug-Ins/VST";
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = "";
+				USER_HEADER_SEARCH_PATHS = "";
 				WRAPPER_EXTENSION = vst;
 			};
 			name = Release;

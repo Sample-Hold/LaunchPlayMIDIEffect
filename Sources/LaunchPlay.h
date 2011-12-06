@@ -9,8 +9,22 @@
 #ifndef LaunchPlayVST_LaunchPlay_h
 #define LaunchPlayVST_LaunchPlay_h
 
+#define kNumPrograms        0
+#define kNumParameters      0
+#define kMaxAudioInputs     2
+#define kMaxAudioOutputs    2
+#define kDefaultTempo       120
+#define kMIDIMessageSize    24
+
+namespace LaunchPlayVST {
+
 class LaunchPlay : public AudioEffectX
 {
+    VstTimeInfo currentTimeInfo_;
+    double beatsPerSample_;
+protected:    
+    void initVST(audioMasterCallback audioMaster);
+    void initTimeInfo();
 public:
 	LaunchPlay(audioMasterCallback audioMaster);
 	virtual ~LaunchPlay();
@@ -19,22 +33,19 @@ public:
     virtual VstPlugCategory getPlugCategory() { return kPlugCategSynth; }
     
     // Vendor infos
-    virtual bool getEffectName(char* name);
-	virtual bool getVendorString(char* text);
-	virtual bool getProductString(char* text);
+    virtual bool getEffectName(char *name);
+	virtual bool getVendorString(char *text);
+	virtual bool getProductString(char *text);
 	virtual VstInt32 getVendorVersion();
+    virtual VstInt32 canDo(char *text);
     
-	// Parameters
-	virtual void setParameter (VstInt32 index, float value);
-	virtual float getParameter (VstInt32 index);
-	virtual void getParameterLabel (VstInt32 index, char* label);
-	virtual void getParameterDisplay (VstInt32 index, char* text);
-	virtual void getParameterName (VstInt32 index, char* text);
-    
-    // Handle events
+    // Handle MIDI events
     virtual VstInt32 processEvents(VstEvents *eventPtr);
 
-    virtual void processReplacing (float** inputs, float** outputs, VstInt32 sampleFrames);
+    // Main process
+    virtual void processReplacing (float **inputs, float **outputs, VstInt32 sampleFrames);
 };
+    
+} // } namespace LaunchPlayVST
 
 #endif
