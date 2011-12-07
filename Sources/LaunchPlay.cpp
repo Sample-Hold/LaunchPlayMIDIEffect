@@ -34,7 +34,6 @@ void LaunchPlay::initVST(audioMasterCallback audioMaster)
     setNumOutputs(kMaxAudioOutputs);
     
     setUniqueID(kUniqueID);
-    isSynth();
     noTail();
     canProcessReplacing();
 }
@@ -111,11 +110,13 @@ void LaunchPlay::processReplacing(float** inputs, float** outputs, VstInt32 samp
             midiTickOn.data[0] = 0x80; // note on
             midiTickOn.data[1] = 64; // note number
             midiTickOn.data[2] = 100; // velocity
+			midiTickOn.data[3] = 0; // stop
             
             midiTickOff.deltaFrames = VstInt32(midiTickOn.deltaFrames + .25 / beatsPerSample_);
-            midiTickOn.data[0] = 0x90; // note off
-            midiTickOn.data[1] = 64; // note number
-            midiTickOn.data[2] = 64; // velocity                    
+            midiTickOff.data[0] = 0x90; // note off
+            midiTickOff.data[1] = 64; // note number
+            midiTickOff.data[2] = 64; // velocity                    
+			midiTickOff.data[3] = 0; // stop
 
             VstEvents tickEvents;
             tickEvents.numEvents = 2;
@@ -133,12 +134,13 @@ void LaunchPlay::processReplacing(float** inputs, float** outputs, VstInt32 samp
 
 VstInt32 LaunchPlay::canDo(char *text)
 {
-    if(text == "sendVstEvents" || 
-       text == "sendVstMidiEvent" || 
-       text == "receiveVstEvents" ||
-       text == "receiveVstMidiEvent" ||
-       text == "receiveVstTimeInfo")
+    if(strcmp(text, "sendVstMidiEvent") == 0 || 
+       strcmp(text, "receiveVstMidiEvent") == 0 ||
+       strcmp(text, "receiveVstTimeInfo") == 0)
         return 1;
+
+	if(strcmp(text, "offline") == 0)
+        return -1;
 
     return AudioEffectX::canDo(text);
 }                     

@@ -16,7 +16,7 @@
 #define kMaxAudioInputs     2
 #define kMaxAudioOutputs    2
 #define kDefaultTempo       120
-#define kMIDIMessageSize    24
+#define kMIDIMessageSize    32
 
 namespace LaunchPlayVST {
 
@@ -32,7 +32,7 @@ public:
 	virtual ~LaunchPlay();
     
     // Category
-    virtual VstPlugCategory getPlugCategory() { return kPlugCategSynth; }
+	virtual VstPlugCategory getPlugCategory() { return kPlugCategEffect; }
     
     // Vendor infos
     virtual bool getEffectName(char *name);
