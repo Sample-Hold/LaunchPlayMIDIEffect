@@ -9,6 +9,8 @@
 #ifndef LaunchPlayVST_LaunchPlay_h
 #define LaunchPlayVST_LaunchPlay_h
 
+#include <audioeffectx.h>
+
 #define kNumPrograms        0
 #define kNumParameters      0
 #define kMaxAudioInputs     2

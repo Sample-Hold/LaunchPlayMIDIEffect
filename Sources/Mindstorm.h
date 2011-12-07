@@ -9,6 +9,8 @@
 #ifndef LaunchPlayVST_Mindstorm_h
 #define LaunchPlayVST_Mindstorm_h
 
+#include <audioeffectx.h>
+
 namespace LaunchPlayVST {
     
     enum WorkerDirection { left, right, up, down };
