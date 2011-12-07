@@ -44,7 +44,6 @@
 		B6D35B31148AAF0D00CE3830 /* LaunchPlay.vst */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LaunchPlay.vst; sourceTree = BUILT_PRODUCTS_DIR; };
 		B6D35B4F148AB00C00CE3830 /* LaunchPlay-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "LaunchPlay-Info.plist"; sourceTree = "<group>"; };
 		B6D35B52148AB03700CE3830 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		B6D35B54148AB26000CE3830 /* LaunchPlay-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LaunchPlay-Prefix.pch"; sourceTree = "<group>"; };
 		B6E46CCB148C563700B27E81 /* aeffeditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aeffeditor.h; path = ../../../vstsdk2.4/public.sdk/source/vst2.x/aeffeditor.h; sourceTree = "<group>"; };
 		B6E46CCC148C563700B27E81 /* audioeffect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = audioeffect.cpp; path = ../../../vstsdk2.4/public.sdk/source/vst2.x/audioeffect.cpp; sourceTree = "<group>"; };
 		B6E46CCD148C563700B27E81 /* audioeffect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = audioeffect.h; path = ../../../vstsdk2.4/public.sdk/source/vst2.x/audioeffect.h; sourceTree = "<group>"; };
@@ -92,7 +91,6 @@
 			children = (
 				B6D35B4F148AB00C00CE3830 /* LaunchPlay-Info.plist */,
 				B6D35B51148AB03700CE3830 /* InfoPlist.strings */,
-				B6D35B54148AB26000CE3830 /* LaunchPlay-Prefix.pch */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -313,8 +311,8 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "";
 				CLANG_CXX_LIBRARY = "";
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Resources/LaunchPlay-Prefix.pch";
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
 				GCC_VERSION = "";
 				GENERATE_PKGINFO_FILE = YES;
 				HEADER_SEARCH_PATHS = (
@@ -338,8 +336,8 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "";
 				CLANG_CXX_LIBRARY = "";
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Resources/LaunchPlay-Prefix.pch";
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
 				GCC_VERSION = "";
 				GENERATE_PKGINFO_FILE = YES;
 				HEADER_SEARCH_PATHS = (
