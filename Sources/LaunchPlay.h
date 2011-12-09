@@ -2,7 +2,7 @@
 //  LaunchPlay.h
 //  LaunchPlayVST
 //
-//  Created by Fred G on 03/12/11.
+//  Created by Fred G on 05/12/11.
 //  Copyright (c) 2011 __MyCompanyName__. All rights reserved.
 //
 
@@ -10,43 +10,30 @@
 #define LaunchPlayVST_LaunchPlay_h
 
 #include <audioeffectx.h>
+#include <boost/utility.hpp>
+#include <assert.h>
 
-#define kNumPrograms        0
-#define kNumParameters      0
-#define kMaxAudioInputs     2
-#define kMaxAudioOutputs    2
-#define kDefaultTempo       120
-#define kMIDIMessageSize    32
+#define kProductString      "LaunchPlay sequencer for LaunchPad"
+#define kVendorString       "Fred G for sample-hold.com"
+#define kSequencerName      "LaunchPlaySequencer"
+#define kEmitterName        "LaunchPlayEmitter"
+#define kVendorVersion      1000
+#define kSeqUniqueID        CCONST('f','9', 's', 'q')
+#define kEmUniqueID         CCONST('f','9', 'e', 'm')
 
 namespace LaunchPlayVST {
+    
+    class LaunchPlayBase : public AudioEffectX, boost::noncopyable {
 
-class LaunchPlay : public AudioEffectX
-{
-    VstTimeInfo currentTimeInfo_;
-    double beatsPerSample_;
-protected:    
-    void initVST(audioMasterCallback audioMaster);
-    void initTimeInfo();
-public:
-	LaunchPlay(audioMasterCallback audioMaster);
-	virtual ~LaunchPlay();
-    
-    // Category
-	virtual VstPlugCategory getPlugCategory() { return kPlugCategEffect; }
-    
-    // Vendor infos
-    virtual bool getEffectName(char *name);
-	virtual bool getVendorString(char *text);
-	virtual bool getProductString(char *text);
-	virtual VstInt32 getVendorVersion();
-    virtual VstInt32 canDo(char *text);
-    
-    // Handle MIDI events
-    virtual VstInt32 processEvents(VstEvents *eventPtr);
-
-    // Main process
-    virtual void processReplacing (float **inputs, float **outputs, VstInt32 sampleFrames);
-};
+    public:
+        LaunchPlayBase(audioMasterCallback audioMaster, 
+                       VstInt32 numPrograms, 
+                       VstInt32 numParams);
+        
+        virtual bool getVendorString(char *text);
+        virtual bool getProductString(char *text);
+        virtual VstInt32 getVendorVersion();
+    };
     
 } // } namespace LaunchPlayVST
 
