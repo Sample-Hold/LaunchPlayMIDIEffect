@@ -9,6 +9,7 @@
 #include "LaunchPlaySequencer.h"
 
 #include <math.h>
+#include <time.h>
 
 #define BEATSPERSAMPLE(tempo, sampleRate) (tempo) / (sampleRate) / 60.0
 
@@ -23,9 +24,37 @@ AudioEffect* createEffectInstance (audioMasterCallback audioMaster)
 #endif
 
 #pragma mark SequencerBase
-SequencerBase::~SequencerBase() 
+SequencerBase::~SequencerBase()
 {
     
+}
+
+void SequencerBase::sendMidiEventsToHost(LaunchPlayBase *plugin)
+{
+    assert(plugin != NULL);
+    
+    VstEventsBlock eventsBlock;
+    eventsBlock.allocate(midiEventsCount());
+    flushMidiEvents(eventsBlock);
+    
+    VstEvents *events = (VstEvents*) &eventsBlock;
+    plugin->sendVstEventsToHost(events);
+    
+    eventsBlock.deallocate(); 
+}
+
+void SequencerBase::sendFeedbackEventsToHost(LaunchPlayBase *plugin)
+{
+    assert(plugin != NULL);
+    
+    VstEventsBlock eventsBlock;
+    eventsBlock.allocate(feedbackEventsCount());
+    flushFeedbackEvents(eventsBlock);
+    
+    VstEvents *events = (VstEvents*) &eventsBlock;
+    plugin->sendVstEventsToHost(events);
+    
+    eventsBlock.deallocate();
 }
 
 #pragma mark GridSequencer
@@ -42,33 +71,31 @@ GridSequencer::~GridSequencer()
 
 bool GridSequencer::EqualLocations::operator()(Worker const& a, Worker const& b) const 
 {
-    return a.x == b.x && a.y == b.y;
+    return a.uniqueID != b.uniqueID && a.x == b.x && a.y == b.y;
 }
 
 void GridSequencer::MoveForward::operator()(Worker & worker, Worker const& boundaries) const
 {
     switch (worker.direction) {
         case up:
-            worker.y = (worker.y == 0) ? boundaries.y : worker.y - 1;
+            worker.y = (worker.y == 0) ? boundaries.y - 1 : worker.y - 1;
             break;
         case down:
-            worker.y = (worker.y >= boundaries.y) ? 0 : worker.y + 1;
+            worker.y = (worker.y >= boundaries.y - 1) ? 0 : worker.y + 1;
             break;
         case left:
-            worker.x = (worker.x == 0) ? boundaries.x : worker.x - 1;
+            worker.x = (worker.x == 0) ? boundaries.x - 1 : worker.x - 1;
             break;
         case right:
-            worker.x = (worker.x >= boundaries.x) ? 0 : worker.x + 1;
+            worker.x = (worker.x >= boundaries.x - 1) ? 0 : worker.x + 1;
             break;
     }
 }
 
-void GridSequencer::HandleColision::operator()(Worker & worker, WorkerList const& workerList) const
+void GridSequencer::HandleCollisions::operator()(Worker & worker, WorkerList const& workerList) const
 {
-    // TODO Handle possible infinite loop here
-    
     if(std::count_if(workerList.begin(), 
-                     workerList.end(), 
+                     workerList.end(),
                      std::bind2nd(EqualLocations(), worker)) > 0)
     {
         worker.direction = 
@@ -78,62 +105,66 @@ void GridSequencer::HandleColision::operator()(Worker & worker, WorkerList const
     }
 }
 
-WorkerListIter GridSequencer::beginIterator()
+WorkerListIter GridSequencer::getWorkersBeginIterator()
 {
     return workers_.begin();
 }
 
-WorkerListIter GridSequencer::endIterator()
+WorkerListIter GridSequencer::getWorkersEndIterator()
 {
     return workers_.end();
 }
 
-bool GridSequencer::addWorker(size_t posX, size_t posY, GridDirection direction)
+bool GridSequencer::addWorker(Worker const& worker)
 {
-    assert(posX <= boundaries_.x && posY <= boundaries_.y);
+    assert(worker.x < boundaries_.x && worker.y < boundaries_.y);
     
-    Worker newWorker;
-    newWorker.x = posX; newWorker.y = posY; newWorker.direction = direction;
-
-    if(workers_.empty() ||
-       std::count_if(workers_.begin(), 
-                    workers_.end(), 
-                    std::bind2nd(EqualLocations(), newWorker)) == 0)
+    if(workers_.empty() || countWorkersAtLocation(worker) == 0)
     {
-        workers_.push_back(newWorker);
+        workers_.push_back(worker);
         return true;
     }
     
     return false;
 }
 
-bool GridSequencer::removeWorker(size_t posX, size_t posY)
+bool GridSequencer::removeWorkers(Worker const& worker)
 {
-    assert(posX <= boundaries_.x && posY <= boundaries_.y);
+    assert(worker.x < boundaries_.x && worker.y < boundaries_.y);
     
-    Worker workerToRemove;
-    workerToRemove.x = posX; workerToRemove.y = posY;
-    
-    if(workers_.empty())
+    if (workers_.empty())
         return false;
-    
-    WorkerListIter it = std::find_if(workers_.begin(), workers_.end(), std::bind2nd(EqualLocations(), workerToRemove));
-    
-    if(it != workers_.end()) {
+
+    bool workersWereRemoved = false;
+    WorkerListIter it;
+    while((it = std::find_if(workers_.begin(), 
+                          workers_.end(), 
+                          std::bind2nd(EqualLocations(), worker))) != workers_.end())
+    {
+        workersWereRemoved = true;
         workers_.erase(it);
-        return true;
     }
     
-    return false;
+    return workersWereRemoved;
+    
 }
 
 bool GridSequencer::removeAllWorkers() 
 {
-    if(!workers_.empty()) {
-        workers_.clear();
-        return true;
-    }
-    return false;
+    if(workers_.empty())
+        return false;
+    
+    workers_.clear();
+    return true;
+}
+
+size_t GridSequencer::countWorkersAtLocation(Worker const& worker)
+{
+    size_t count = std::count_if(workers_.begin(), 
+                                 workers_.end(), 
+                                 std::bind2nd(EqualLocations(), worker));
+     
+    return count;
 }
 
 void GridSequencer::processForward(double ppq, VstInt32 sampleOffset)
@@ -142,18 +173,24 @@ void GridSequencer::processForward(double ppq, VstInt32 sampleOffset)
     for_each(workers_.begin(), workers_.end(), std::bind2nd(MoveForward(), boundaries_));
     
     // detect collisions
-    for_each(workers_.begin(), workers_.end(), std::bind2nd(HandleColision(), workers_));      
+    for_each(workers_.begin(), workers_.end(), std::bind2nd(HandleCollisions(), workers_));      
 }
 
-VstEventsArray* GridSequencer::flushMidiEvents()
+size_t GridSequencer::midiEventsCount() const
 {
     // TODO implement
-    return NULL;
+    return 0;
+}
+
+void GridSequencer::flushMidiEvents(VstEventsBlock &events)
+{
+    // TODO implement
 }
 
 #pragma mark LaunchPadSequencer
 LaunchPadSequencer::LaunchPadSequencer()
-: GridSequencer(kLaunchPadWidth, kLaunchPadHeight)
+: GridSequencer(kLaunchPadWidth, kLaunchPadHeight), 
+currentDirection_(up), currentEditMode_(addWorkersMode), primaryBufferEnabled_(false)
 {
     
 }
@@ -166,72 +203,142 @@ LaunchPadSequencer::~LaunchPadSequencer()
 void LaunchPadSequencer::resetLaunchPad(VstInt32 deltaFrames)
 {
     primaryBufferEnabled_ = false;
-    internalEvents_.push_back((VstEvent*) LaunchPadMessagesHelper::createResetMessage(deltaFrames));
+    eventsBuffer_.push_back(LaunchPadHelper::createResetMessage(deltaFrames));
 }
 
 void LaunchPadSequencer::setXYLayout(VstInt32 deltaFrames)
 {
-    internalEvents_.push_back((VstEvent*) LaunchPadMessagesHelper::createSetLayoutMessage(xYLayout, 
-                                                                                          deltaFrames));
+    eventsBuffer_.push_back(LaunchPadHelper::createSetLayoutMessage(xYLayout,
+                                                                    deltaFrames));
 }
 
-void LaunchPadSequencer::setDirection(GridDirection direction, VstInt32 deltaFrames) 
+void LaunchPadSequencer::cleanWorkers(VstInt32 deltaFrames)
 {
-    currentDirection_ = direction;
-    
-    for (VstInt32 i = 0; i < 4; ++i) {
-        if(i == direction)
-            internalEvents_.push_back((VstEvent*) 
-                                      LaunchPadMessagesHelper::createChangeDirectionButtonMessage(i, 
-                                                                                                  fullYellow,
-                                                                                                  deltaFrames));
-        else
-            internalEvents_.push_back((VstEvent*)
-                                      LaunchPadMessagesHelper::createChangeDirectionButtonMessage(i, 
-                                                                                                  off,
-                                                                                                  deltaFrames));
+    for(WorkerListIter it = getWorkersBeginIterator(); it != getWorkersEndIterator(); ++it) {
+        eventsBuffer_.push_back(LaunchPadHelper::createGridButtonMessage(it->x, 
+                                                                         it->y,
+                                                                         off,
+                                                                         deltaFrames));
     }
+}
+
+void LaunchPadSequencer::showWorkers(VstInt32 deltaFrames)
+{
+    for(WorkerListIter it = getWorkersBeginIterator(); it != getWorkersEndIterator(); ++it) {
+        bool collision = countWorkersAtLocation(*it) > 0;
+        
+        
+        eventsBuffer_.push_back(LaunchPadHelper::createGridButtonMessage(it->x, 
+                                                                         it->y,
+                                                                         collision ? 
+                                                                         fullRed : fullGreen,
+                                                                         deltaFrames));
+    }
+}
+
+void LaunchPadSequencer::showDirections(VstInt32 deltaFrames) 
+{
+    for (VstInt32 i = 0; i < 4; ++i)
+    {
+        bool showDirection  = (i == currentDirection_);
+        eventsBuffer_.push_back(LaunchPadHelper::createTopButtonMessage(i, 
+                                                                        showDirection ?
+                                                                        fullAmber : off,
+                                                                        deltaFrames));
+    }
+}
+
+void LaunchPadSequencer::showEditMode(VstInt32 deltaFrames)
+{
+    eventsBuffer_.push_back(LaunchPadHelper::createTopButtonMessage(4, 
+                                                                    currentEditMode_ == addWorkersMode ?
+                                                                    fullAmber : fullRed,
+                                                                    deltaFrames));
+}
+
+void LaunchPadSequencer::showRemoveButton(VstInt32 deltaFrames)
+{
+    eventsBuffer_.push_back(LaunchPadHelper::createTopButtonMessage(5, 
+                                                                    fullAmber,
+                                                                    deltaFrames));
+}
+
+void LaunchPadSequencer::showTick(double ppq, VstInt32 deltaFrames)
+{
+    bool tickTack = VstInt32(floor(ppq)) % 2 == 0;
+    
+    eventsBuffer_.push_back(LaunchPadHelper::createTopButtonMessage(6, 
+                                                                    tickTack? fullRed : off,
+                                                                    deltaFrames));
+    eventsBuffer_.push_back(LaunchPadHelper::createTopButtonMessage(7, 
+                                                                    tickTack? off : fullRed,
+                                                                    deltaFrames));
 }
 
 void LaunchPadSequencer::swapBuffers(VstInt32 deltaFrames)
 {
-    internalEvents_.push_back((VstEvent*) LaunchPadMessagesHelper::createSwapBuffersMessage(primaryBufferEnabled_, 
-                                                                                            deltaFrames));
     primaryBufferEnabled_ = !primaryBufferEnabled_;
+    eventsBuffer_.push_back(LaunchPadHelper::createSwapBuffersMessage(primaryBufferEnabled_, 
+                                                                              deltaFrames));
+}
+
+size_t LaunchPadSequencer::feedbackEventsCount() const
+{
+    return eventsBuffer_.size();
+}
+
+void LaunchPadSequencer::flushFeedbackEvents(VstEventsBlock &events)
+{
+    for (size_t i = 0; i < eventsBuffer_.size(); ++i)        
+        VstEventsBlock::convertMidiEvent(eventsBuffer_[i], events.events[i]);
+
+    eventsBuffer_.clear();
 }
 
 void LaunchPadSequencer::init()
 {
     resetLaunchPad(0);
-    setXYLayout(1);
-    swapBuffers(1);
-    setDirection(up, 2);
-    swapBuffers(3);
 }
 
 void LaunchPadSequencer::processForward(double ppq, VstInt32 sampleOffset) 
 {
-    // clear current workers
-    for (WorkerListIter it = beginIterator(); it != endIterator(); ++it)
-        internalEvents_.push_back((VstEvent*) LaunchPadMessagesHelper::createChangeGridButtonMessage(it->x, 
-                                                                                                     it->y, 
-                                                                                                     off,
-                                                                                                     sampleOffset));
+    // turn workers off
+    cleanWorkers(sampleOffset);
+    
+    // check for "remove all" request
+    if(removeAll_) {
+        removeAllWorkers();
+        removeAll_ = false;
+    }
+    
+    // check for "remove worker" request
+    if(tempWorker_.get() != NULL && currentEditMode_ == removeWorkersMode) {
+        removeWorkers(*tempWorker_);
+        tempWorker_.release();
+    }
+    
+    //processForward
     GridSequencer::processForward(ppq, sampleOffset);
     
-    // show updated workers
-    for (WorkerListIter it = beginIterator(); it != endIterator(); ++it)
-        internalEvents_.push_back((VstEvent*) LaunchPadMessagesHelper::createChangeGridButtonMessage(it->x, 
-                                                                                                     it->y, 
-                                                                                                     fullRed,
-                                                                                                     sampleOffset));
+    // check for "add worker" request
+    if(tempWorker_.get() != NULL && currentEditMode_ == addWorkersMode) {
+        addWorker(*tempWorker_);
+        tempWorker_.release();
+    }
     
-    swapBuffers(sampleOffset + 1);
+    // turn workers on
+    showWorkers(sampleOffset);
+    
+     // show other buttons
+    showDirections(sampleOffset);
+    showEditMode(sampleOffset);
+    showRemoveButton(sampleOffset);
+    showTick(ppq, sampleOffset);
 }
 
 void LaunchPadSequencer::processUserEvents(VstEvents *eventPtr)
 {
-    for (VstInt32 i = 0; i < eventPtr->numEvents; ++i) 
+    for (VstInt32 i = 0; i < VstInt32(eventPtr->numEvents); ++i) 
     {
         VstEvent *event = eventPtr->events[i]; 
         
@@ -239,33 +346,35 @@ void LaunchPadSequencer::processUserEvents(VstEvents *eventPtr)
             continue;
         
         VstMidiEvent *midiEvent = (VstMidiEvent*) event;        
-        if(LaunchPadMessagesHelper::isValidMessage(midiEvent)) {
-            LaunchPadUserInput userInput = LaunchPadMessagesHelper::readMessage(midiEvent, xYLayout);
-            VstInt32 deltaFrames = midiEvent->deltaFrames;
+        if(LaunchPadHelper::isValidMessage(midiEvent)) {
+            LaunchPadUserInput userInput = LaunchPadHelper::readMessage(midiEvent, xYLayout);
+
+            if(userInput.isTopButton && userInput.btnPressed && userInput.btnNumber < 4) {
+                currentDirection_ = (GridDirection) userInput.btnNumber;
+                continue;
+            }
             
-            if(userInput.isTopButton && userInput.btnPressed && userInput.btnNumber < 5) {
-                setDirection(GridDirection(userInput.btnNumber), deltaFrames);
+            if(userInput.isTopButton && userInput.btnPressed && userInput.btnNumber == 4) {
+                currentEditMode_ = (currentEditMode_ == addWorkersMode) ? 
+                removeWorkersMode : addWorkersMode; 
+                continue;
+            }
+            
+            if(userInput.isTopButton && userInput.btnPressed && userInput.btnNumber == 5) {
+                removeAll_ = true;
                 continue;
             }
             
             if(userInput.isGridButton && userInput.btnReleased) {
-                addWorker(userInput.x, userInput.y, currentDirection_);
+                tempWorker_ = std::auto_ptr<Worker>(new Worker);
+                tempWorker_->uniqueID = VstInt32(time(NULL));
+                tempWorker_->x = userInput.x;
+                tempWorker_->y = userInput.y;
+                tempWorker_->direction = currentDirection_;
                 continue;
             }
         }
     }
-}
-
-VstEventsArray* LaunchPadSequencer::flushFeedbackEvents()
-{
-    VstEventsArray *events = VstMIDIHelper::allocateVstEventsArray(internalEvents_.size());
-    
-    for(size_t i = 0; i < internalEvents_.size(); ++i)
-        events->events[i] = internalEvents_[i];
-    
-    internalEvents_.clear();
-    
-    return events;
 }
 
 #pragma mark LaunchPlaySequencer
@@ -301,9 +410,26 @@ VstInt32 LaunchPlaySequencer::canDo(char *text)
     return 0;
 }    
 
+void LaunchPlaySequencer::onTick(double ppq, VstInt32 sampleOffset)
+{
+    assert(sequencer_.get() != NULL && sampleOffset >= 0);
+    
+    // trick to initialize LaunchPad on first frame
+    if(sampleOffset == 0)
+        sequencer_->sendFeedbackEventsToHost(this);
+    
+    // move sequencer forward; avoid 0-10 for sampleOffset, this is used for init
+    sequencer_->processForward(ppq, sampleOffset);
+    
+    // send feedback events to LaunchPad
+    sequencer_->sendFeedbackEventsToHost(this);
+    
+    // TODO send MIDI notes to receiver
+}
+
 void LaunchPlaySequencer::detectTicks(VstTimeInfo *timeInfo, 
-                                 VstInt32 sampleFrames, 
-                                 double stride)
+                                      VstInt32 sampleFrames, 
+                                      double stride)
 {
     double startPpqPos = timeInfo->ppqPos;
     double beatsPerSample = BEATSPERSAMPLE(timeInfo->tempo, timeInfo->sampleRate);
@@ -315,44 +441,6 @@ void LaunchPlaySequencer::detectTicks(VstTimeInfo *timeInfo,
     
     for(;ppqPos < endPpqPos; ppqPos += stride)
         onTick(ppqPos, VstInt32((ppqPos - startPpqPos) / beatsPerSample));
-}
-
-void LaunchPlaySequencer::onTick(double ppq, VstInt32 sampleOffset)
-{
-    assert(sequencer_.get() != NULL);
-    
-    // flush previous feedback events
-    VstEventsArray* feedbackEvents = sequencer_->flushFeedbackEvents();
-    
-    // weird cast but obviously the VST SDK gives me no choice
-    VstEvents* events = (VstEvents*) feedbackEvents;
-    
-    // send back feedback events to host - buggy
-    //sendVstEventsToHost(events);
-    
-    // clean memory
-    VstMIDIHelper::freeVstEventsArray(feedbackEvents);
-    
-    // move sequencer forward
-    sequencer_->processForward(ppq, sampleOffset);
-    
-    // flush generated events
-    feedbackEvents = sequencer_->flushFeedbackEvents();
-    
-    // again this weird devilish cast
-    events = (VstEvents*) feedbackEvents;
-    
-    // don't wait next turn to send generated feedback events back to host - buggy
-    //sendVstEventsToHost(events);
-    
-    // clean memory
-    VstMIDIHelper::freeVstEventsArray(feedbackEvents);
-}
-
-void LaunchPlaySequencer::open()
-{
-    sequencer_.reset(new LaunchPadSequencer);
-    sequencer_->init();
 }
 
 void LaunchPlaySequencer::processReplacing(float** inputs, float** outputs, VstInt32 sampleFrames)
@@ -368,10 +456,16 @@ void LaunchPlaySequencer::processReplacing(float** inputs, float** outputs, VstI
     }
 }
 
-VstInt32 LaunchPlaySequencer::processEvents(VstEvents *eventPtr) 
+VstInt32 LaunchPlaySequencer::processEvents(VstEvents *events) 
 {
     assert(sequencer_.get() != NULL);
     
-    sequencer_->processUserEvents(eventPtr);
+    sequencer_->processUserEvents(events);
     return 0;
+}
+
+void LaunchPlaySequencer::open()
+{
+    sequencer_.reset(new LaunchPadSequencer);
+    sequencer_->init();
 }

@@ -42,10 +42,10 @@
 		B6E46CDC148C573800B27E81 /* audioeffect.h in Headers */ = {isa = PBXBuildFile; fileRef = B6E46CCD148C563700B27E81 /* audioeffect.h */; };
 		B6E46CDD148C573800B27E81 /* audioeffectx.h in Headers */ = {isa = PBXBuildFile; fileRef = B6E46CCF148C563700B27E81 /* audioeffectx.h */; };
 		B6E46CDE148C573800B27E81 /* LaunchPlay.h in Headers */ = {isa = PBXBuildFile; fileRef = B6D35B11148AA30500CE3830 /* LaunchPlay.h */; };
-		B6ED5C471490DE06009887AC /* MIDIHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = B6ED5C461490DE06009887AC /* MIDIHelper.h */; };
-		B6ED5C481490DE06009887AC /* MIDIHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = B6ED5C461490DE06009887AC /* MIDIHelper.h */; };
-		B6ED5C4A14914DAF009887AC /* MIDIHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6ED5C4914914DAF009887AC /* MIDIHelper.cpp */; };
-		B6ED5C4B14914DAF009887AC /* MIDIHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6ED5C4914914DAF009887AC /* MIDIHelper.cpp */; };
+		B6ED5C471490DE06009887AC /* MIDIHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = B6ED5C461490DE06009887AC /* MIDIHelpers.h */; };
+		B6ED5C481490DE06009887AC /* MIDIHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = B6ED5C461490DE06009887AC /* MIDIHelpers.h */; };
+		B6ED5C4A14914DAF009887AC /* MIDIHelpers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6ED5C4914914DAF009887AC /* MIDIHelpers.cpp */; };
+		B6ED5C4B14914DAF009887AC /* MIDIHelpers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6ED5C4914914DAF009887AC /* MIDIHelpers.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -103,8 +103,8 @@
 		B6E46CD4148C564300B27E81 /* aeffect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aeffect.h; path = ../../../vstsdk2.4/pluginterfaces/vst2.x/aeffect.h; sourceTree = "<group>"; };
 		B6E46CD5148C564300B27E81 /* aeffectx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aeffectx.h; path = ../../../vstsdk2.4/pluginterfaces/vst2.x/aeffectx.h; sourceTree = "<group>"; };
 		B6E46CD6148C564300B27E81 /* vstfxstore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vstfxstore.h; path = ../../../vstsdk2.4/pluginterfaces/vst2.x/vstfxstore.h; sourceTree = "<group>"; };
-		B6ED5C461490DE06009887AC /* MIDIHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MIDIHelper.h; sourceTree = "<group>"; };
-		B6ED5C4914914DAF009887AC /* MIDIHelper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MIDIHelper.cpp; sourceTree = "<group>"; };
+		B6ED5C461490DE06009887AC /* MIDIHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MIDIHelpers.h; sourceTree = "<group>"; };
+		B6ED5C4914914DAF009887AC /* MIDIHelpers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MIDIHelpers.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -156,8 +156,8 @@
 				B62EC42014901F5D002EF0E8 /* LaunchPlaySequencer.cpp */,
 				B62EC41E14901F28002EF0E8 /* LaunchPlayEmitter.h */,
 				B62EC42214901F6F002EF0E8 /* LaunchPlayEmitter.cpp */,
-				B6ED5C461490DE06009887AC /* MIDIHelper.h */,
-				B6ED5C4914914DAF009887AC /* MIDIHelper.cpp */,
+				B6ED5C461490DE06009887AC /* MIDIHelpers.h */,
+				B6ED5C4914914DAF009887AC /* MIDIHelpers.cpp */,
 			);
 			name = LaunchPlay;
 			sourceTree = "<group>";
@@ -201,7 +201,7 @@
 				B62EC42C149021D9002EF0E8 /* LaunchPlay.h in Headers */,
 				B62EC42F149021D9002EF0E8 /* LaunchPlaySequencer.h in Headers */,
 				B62EC430149021D9002EF0E8 /* LaunchPlayEmitter.h in Headers */,
-				B6ED5C481490DE06009887AC /* MIDIHelper.h in Headers */,
+				B6ED5C481490DE06009887AC /* MIDIHelpers.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -219,7 +219,7 @@
 				B62EC41C14901ED3002EF0E8 /* LaunchPlaySequencer.h in Headers */,
 				B62EC41F14901F29002EF0E8 /* LaunchPlayEmitter.h in Headers */,
 				B6B2E9F91490550D0045EF25 /* LaunchPlay-Prefix.pch in Headers */,
-				B6ED5C471490DE06009887AC /* MIDIHelper.h in Headers */,
+				B6ED5C471490DE06009887AC /* MIDIHelpers.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -319,7 +319,7 @@
 				B62EC435149021D9002EF0E8 /* vstplugmain.cpp in Sources */,
 				B62EC437149021D9002EF0E8 /* LaunchPlaySequencer.cpp in Sources */,
 				B62EC438149021D9002EF0E8 /* LaunchPlayEmitter.cpp in Sources */,
-				B6ED5C4B14914DAF009887AC /* MIDIHelper.cpp in Sources */,
+				B6ED5C4B14914DAF009887AC /* MIDIHelpers.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -333,7 +333,7 @@
 				B6E46CD3148C563700B27E81 /* vstplugmain.cpp in Sources */,
 				B62EC42114901F5D002EF0E8 /* LaunchPlaySequencer.cpp in Sources */,
 				B62EC42314901F6F002EF0E8 /* LaunchPlayEmitter.cpp in Sources */,
-				B6ED5C4A14914DAF009887AC /* MIDIHelper.cpp in Sources */,
+				B6ED5C4A14914DAF009887AC /* MIDIHelpers.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

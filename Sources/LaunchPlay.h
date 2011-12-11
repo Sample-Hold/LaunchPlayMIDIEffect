@@ -11,6 +11,7 @@
 
 #include <audioeffectx.h>
 #include <boost/utility.hpp>
+#include <boost/bind.hpp>
 #include <assert.h>
 
 #define kProductString      "LaunchPlay sequencer for LaunchPad"

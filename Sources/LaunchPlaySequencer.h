@@ -10,34 +10,42 @@
 #define LaunchPlayVST_LaunchPlaySequencer_h
 
 #include "LaunchPlay.h"
-#include "MIDIHelper.h"
+#include "MIDIHelpers.h"
 
-#include <memory>
-#include <functional>
 #include <vector>
+#include <memory>
 #include <algorithm>
+#include <functional>
 
-#define kStrideQuarter      1
-#define kStrideEight        .5
-#define kStrideSixteenth    .25
-#define kLaunchPadWidth     8
-#define kLaunchPadHeight    8
+#define kStrideQuarter          1
+#define kStrideEight            .5
+#define kStrideSixteenth        .25
+
+#define kLaunchPadWidth         8
+#define kLaunchPadHeight        8
 
 namespace LaunchPlayVST {
 
     class SequencerBase {
+    protected:
+        virtual size_t midiEventsCount() const = 0;
+        virtual size_t feedbackEventsCount() const = 0;
+        virtual void flushMidiEvents(VstEventsBlock &events) = 0;
+        virtual void flushFeedbackEvents(VstEventsBlock &events) = 0;
     public:
         virtual ~SequencerBase() = 0;
         virtual void init() = 0;
         virtual void processForward(double ppq, VstInt32 sampleOffset) = 0;
         virtual void processUserEvents(VstEvents *events) = 0;
-        virtual VstEventsArray* flushMidiEvents() = 0;
-        virtual VstEventsArray* flushFeedbackEvents() = 0;
+        
+        void sendMidiEventsToHost(LaunchPlayBase *plugin);
+        void sendFeedbackEventsToHost(LaunchPlayBase *plugin);
     };
     
     enum GridDirection { up, down, left, right };
     
     struct Worker { 
+        VstInt32 uniqueID;
         size_t x;
         size_t y;
         GridDirection direction;
@@ -47,19 +55,6 @@ namespace LaunchPlayVST {
     typedef WorkerList::iterator WorkerListIter;
     
     class GridSequencer : public SequencerBase, boost::noncopyable {
-    public:
-        GridSequencer(size_t width, size_t height);
-        virtual ~GridSequencer();
-        
-        virtual void processForward(double ppq, VstInt32 sampleOffset);
-        virtual VstEventsArray* flushMidiEvents();
-    protected:
-        bool addWorker(size_t posX, size_t posY, GridDirection direction);
-        WorkerListIter beginIterator();
-        WorkerListIter endIterator();
-        bool removeWorker(size_t posX, size_t posY);
-        bool removeAllWorkers();
-    private:
         struct EqualLocations : std::binary_function<Worker, Worker, bool> {
             bool operator()(Worker const& a, Worker const& b) const;
         };
@@ -68,23 +63,50 @@ namespace LaunchPlayVST {
             void operator()(Worker & worker, Worker const& boundaries) const;
         };
         
-        struct HandleColision : std::binary_function<Worker, WorkerList, void> {
+        struct HandleCollisions : std::binary_function<Worker, WorkerList, void> {
             void operator()(Worker & worker, WorkerList const& workerList) const;
         };
-
+        
         WorkerList workers_;
         Worker boundaries_;
+    protected:
+        virtual size_t midiEventsCount() const;
+        virtual void flushMidiEvents(VstEventsBlock &events);
+        
+        size_t countWorkersAtLocation(Worker const& worker);
+        bool addWorker(Worker const& worker);
+        bool removeWorkers(Worker const& worker);
+        bool removeAllWorkers();
+        WorkerListIter getWorkersBeginIterator();
+        WorkerListIter getWorkersEndIterator();
+    public:
+        GridSequencer(size_t width, size_t height);
+        virtual ~GridSequencer();
+        
+        virtual void processForward(double ppq, VstInt32 sampleOffset);
     };
     
+    enum EditMode { addWorkersMode, removeWorkersMode };
+    
     class LaunchPadSequencer : public GridSequencer {
-        std::vector<VstEvent*> internalEvents_;
+        std::vector<VstMidiEvent> eventsBuffer_;
         GridDirection currentDirection_;
-        bool primaryBufferEnabled_;
+        EditMode currentEditMode_;
+        bool primaryBufferEnabled_, removeAll_;
+        std::auto_ptr<Worker> tempWorker_;
     protected:
-        void resetLaunchPad(VstInt32 deltaFrames = 0);
-        void setXYLayout(VstInt32 deltaFrames = 0);
-        void setDirection(GridDirection direction, VstInt32 deltaFrames = 0);
-        void swapBuffers(VstInt32 deltaFrames = 0);
+        virtual size_t feedbackEventsCount() const;
+        virtual void flushFeedbackEvents(VstEventsBlock &events);
+        
+        void resetLaunchPad(VstInt32 deltaFrames);
+        void setXYLayout(VstInt32 deltaFrames);
+        void showWorkers(VstInt32 deltaFrames);
+        void cleanWorkers(VstInt32 deltaFrames);
+        void showDirections(VstInt32 deltaFrames);
+        void showRemoveButton(VstInt32 deltaFrames);
+        void showEditMode(VstInt32 deltaFrames);
+        void showTick(double ppq, VstInt32 deltaFrames);
+        void swapBuffers(VstInt32 deltaFrames);
     public:
         LaunchPadSequencer();
         virtual ~LaunchPadSequencer();
@@ -92,7 +114,6 @@ namespace LaunchPlayVST {
         virtual void init();
         virtual void processUserEvents(VstEvents *eventPtr);
         virtual void processForward(double ppq, VstInt32 sampleOffset);
-        virtual VstEventsArray* flushFeedbackEvents();
     };
 
     class LaunchPlaySequencer : public LaunchPlayBase {
@@ -111,7 +132,7 @@ namespace LaunchPlayVST {
         virtual VstInt32 canDo(char *text);
 	    
         virtual void open();
-        virtual VstInt32 processEvents(VstEvents *eventPtr);
+        virtual VstInt32 processEvents(VstEvents *events);
         virtual void processReplacing (float **inputs, float **outputs, VstInt32 sampleFrames);
     };
     
