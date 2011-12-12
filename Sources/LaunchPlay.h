@@ -9,11 +9,14 @@
 #ifndef LaunchPlayVST_LaunchPlay_h
 #define LaunchPlayVST_LaunchPlay_h
 
+#if defined (WIN32)
+	#define _CRT_SECURE_NO_WARNINGS 1
+	#pragma warning (disable : 4068 ) /* disable unknown pragma warnings */
+#endif
+
 #include <assert.h>
-#include <memory>
 #include <audioeffectx.h>
 #include <boost/utility.hpp>
-#include <boost/interprocess/ipc/message_queue.hpp>
 
 #define kProductString      "LaunchPlay sequencer for LaunchPad"
 #define kVendorString       "Fred G for sample-hold.com"

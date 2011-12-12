@@ -62,7 +62,7 @@ void LaunchPlayEmitter::close()
 void LaunchPlayEmitter::processReplacing(float** inputs, float** outputs, VstInt32 sampleFrames)
 {
     unsigned int priority;
-    message_queue::size_type recvd_size;
+    size_t recvd_size;
     
     VstEventsBlock eventsBlock;
     eventsBlock.allocate(kVstEventsBlockSize);

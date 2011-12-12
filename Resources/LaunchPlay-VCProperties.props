@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <UserLibraries>C:\Users\Fred\Documents\Visual Studio 2010\UserLibraries</UserLibraries>
+    <VstHostDir>C:\Program Files (x86)\Steinberg\Cubase 5</VstHostDir>
+    <VstHostExecutable>Cubase5.exe</VstHostExecutable>
+    <VstPluginsDir>C:\Program Files (x86)\Steinberg\VstPlugins</VstPluginsDir>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemDefinitionGroup />
+  <ItemGroup>
+    <BuildMacro Include="UserLibraries">
+      <Value>$(UserLibraries)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="VstHostDir">
+      <Value>$(VstHostDir)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="VstHostExecutable">
+      <Value>$(VstHostExecutable)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="VstPluginsDir">
+      <Value>$(VstPluginsDir)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+  </ItemGroup>
+</Project>

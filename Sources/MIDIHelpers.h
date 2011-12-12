@@ -9,7 +9,14 @@
 #ifndef LaunchPlayVST_MIDIHelper_h
 #define LaunchPlayVST_MIDIHelper_h
 
-#include <aeffect.h>
+#include <assert.h>
+#include <stdio.h>
+#include <pluginterfaces/vst2.x/aeffectx.h>
+
+#if defined (WIN32)
+	#define _CRT_SECURE_NO_WARNINGS 1
+	#pragma warning (disable : 4068 ) /* disable unknown pragma warnings */
+#endif
 
 #define SIZEOFMIDIEVENT         sizeof(VstMidiEvent) - 2 * sizeof(VstInt32)
 #define kVstEventsBlockSize     32
@@ -75,7 +82,6 @@ namespace LaunchPlayVST {
     };
     
     class LaunchPadHelper {
-    protected:
         static VstMidiEvent createRawMessage(MIDIMessage const& message, 
                                              bool copyBit,
                                              bool clearBit, 

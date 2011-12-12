@@ -474,9 +474,9 @@ void LaunchPlaySequencer::setParameter(VstInt32 index, float value)
 {
     switch (index) {
         case 0: // base note
-            sequencer_->setBaseNote(VstInt32(round(value * MIDIHelper::kBaseNoteMaxValue)));
+            sequencer_->setBaseNote(VstInt32(floor((value * (float) MIDIHelper::kBaseNoteMaxValue) + .5)));
         case 1: // scale
-            sequencer_->setScale(MIDIHelper::Scale(round(value * MIDIHelper::kScaleMaxValue)));
+            sequencer_->setScale(MIDIHelper::Scale((uint32_t) floor((value * (float) MIDIHelper::kScaleMaxValue) + .5)));
     }
 }
 

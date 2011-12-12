@@ -39,7 +39,7 @@ void VstEventsBlock::allocate(size_t const size)
 
 void VstEventsBlock::deallocate()
 {
-    for(size_t i = 0; i < this->numEvents; ++i)
+    for(VstInt32 i = 0; i < this->numEvents; ++i)
         delete this->events[i];
     
     this->numEvents = 0;
@@ -68,7 +68,7 @@ void VstEventsBlock::debugVstEvents(VstEvents const* events, char midiEventToWat
 {
     assert(events != NULL);
     
-    for(size_t i=0; i < events->numEvents; ++i) {
+    for(VstInt32 i=0; i < events->numEvents; ++i) {
         VstEvent* event = events->events[i];
     
         if (event->type != kVstMidiType)
@@ -84,7 +84,7 @@ void VstEventsBlock::debugVstEvents(VstEvents const* events, char midiEventToWat
         printf("VstMidiEvent deltaFrames=%d\n", midiEvent->deltaFrames);
 
         for(size_t j=0; j<3; ++j)
-            printf("VstMidiEvent midiData[%u]=0x%X\n", (uint32_t) j, midiEvent->midiData[j] & kMIDILRBitMask);
+            printf("VstMidiEvent midiData[%u]=0x%X\n", (VstInt32) j, midiEvent->midiData[j] & kMIDILRBitMask);
         
         printf("\n");
     }
@@ -117,9 +117,9 @@ VstMidiEvent MIDIHelper::createNoteOn(VstInt32 baseNoteOffset,
     midiEvent.byteSize = SIZEOFMIDIEVENT;
     midiEvent.deltaFrames = deltaFrames;
     midiEvent.flags = kVstMidiEventIsRealtime;
-    midiEvent.midiData[0] = kMIDINoteOnEvent;
+    midiEvent.midiData[0] = (unsigned char) kMIDINoteOnEvent;
     midiEvent.midiData[1] = (unsigned char) note;
-    midiEvent.midiData[2] = kMIDIVelocityMax;
+    midiEvent.midiData[2] = (unsigned char) kMIDIVelocityMax;
     midiEvent.noteLength = (midiEvent.noteOffset = (midiEvent.noteOffVelocity = (midiEvent.detune = 0)));
 
     return midiEvent;
@@ -136,8 +136,8 @@ VstMidiEvent MIDIHelper::createNoteOff(VstInt32 baseNoteOffset,
                                            offset, 
                                            deltaFrames);
     
-    midiEvent.midiData[0] = kMIDINoteOffEvent;
-    midiEvent.midiData[2] = kMIDIVelocityMin;
+    midiEvent.midiData[0] = (unsigned char) kMIDINoteOffEvent;
+    midiEvent.midiData[2] = (unsigned char) kMIDIVelocityMin;
     return midiEvent;
 }
 

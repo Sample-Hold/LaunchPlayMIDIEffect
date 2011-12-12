@@ -1,0 +1,125 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{898DFEB4-057C-4805-891E-EAD154E103CB}</ProjectGuid>
+    <RootNamespace>LaunchPlaySequencer</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\Resources\LaunchPlay-VCProperties.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\Resources\LaunchPlay-VCProperties.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <TargetExt>.dll</TargetExt>
+    <IncludePath>$(UserLibraries)\boost_1_48_0;$(UserLibraries)\vstsdk2.4;$(UserLibraries)\vstsdk2.4\public.sdk\source\vst2.x;$(IncludePath)</IncludePath>
+    <LibraryPath>$(UserLibraries)\boost_1_48_0\stage\lib\win32;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(UserLibraries)\boost_1_48_0;$(UserLibraries)\vstsdk2.4;$(UserLibraries)\vstsdk2.4\public.sdk\source\vst2.x;$(IncludePath)</IncludePath>
+    <LibraryPath>$(UserLibraries)\boost_1_48_0\stage\lib\win32;$(LibraryPath)</LibraryPath>
+    <TargetExt>.dll</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_WINDLL;WIN32;DEBUG;LAUNCHPLAY_SEQUENCER_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>Sources/StdAfx.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ModuleDefinitionFile>$(SolutionDir)\Resources\LaunchPlay-VCExport.def</ModuleDefinitionFile>
+    </Link>
+    <CustomBuildStep>
+      <Command>cp $(SolutionDir)$(Configuration)\$(ProjectName).dll $(VstPluginsDir)</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>Copying VST plugins to VST folder...</Message>
+    </CustomBuildStep>
+    <PostBuildEvent>
+      <Command>copy "$(SolutionDir)$(Configuration)\$(ProjectName).dll" "$(VstPluginsDir)"</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copying LaunchSequencer.dll to VST folder....</Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>_MBCS;_WINDLL;WIN32;LAUNCHPLAY_SEQUENCER_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <ModuleDefinitionFile>$(SolutionDir)\Resources\LaunchPlay-VCExport.def</ModuleDefinitionFile>
+    </Link>
+    <CustomBuildStep>
+      <Command>cp $(SolutionDir)$(Configuration)\$(ProjectName).dll $(VstPluginsDir)</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>Copying VST plugins to VST folder...</Message>
+    </CustomBuildStep>
+    <PostBuildEvent>
+      <Command>copy "$(SolutionDir)$(Configuration)\$(ProjectName).dll" "$(VstPluginsDir)"</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copying LaunchSequencer.dll to VST folder....</Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Sources\LaunchPlay.h" />
+    <ClInclude Include="..\..\Sources\LaunchPlayEmitter.h" />
+    <ClInclude Include="..\..\Sources\LaunchPlaySequencer.h" />
+    <ClInclude Include="..\..\Sources\MIDIHelpers.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Resources\LaunchPlay-VCExport.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\UserLibraries\vstsdk2.4\public.sdk\source\vst2.x\audioeffect.cpp" />
+    <ClCompile Include="..\..\..\..\UserLibraries\vstsdk2.4\public.sdk\source\vst2.x\audioeffectx.cpp" />
+    <ClCompile Include="..\..\..\..\UserLibraries\vstsdk2.4\public.sdk\source\vst2.x\vstplugmain.cpp" />
+    <ClCompile Include="..\..\Sources\LaunchPlay.cpp" />
+    <ClCompile Include="..\..\Sources\LaunchPlayEmitter.cpp" />
+    <ClCompile Include="..\..\Sources\LaunchPlaySequencer.cpp" />
+    <ClCompile Include="..\..\Sources\MIDIHelpers.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

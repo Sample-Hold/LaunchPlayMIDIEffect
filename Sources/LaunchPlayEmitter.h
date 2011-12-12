@@ -12,6 +12,9 @@
 #include "LaunchPlay.h"
 #include "MIDIHelpers.h"
 
+#include <boost/interprocess/ipc/message_queue.hpp>
+#include <memory>
+
 namespace LaunchPlayVST {
     
     class LaunchPlayEmitter : public LaunchPlayBase {

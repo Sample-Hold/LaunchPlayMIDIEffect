@@ -12,9 +12,11 @@
 #include "LaunchPlay.h"
 #include "MIDIHelpers.h"
 
+#include <memory>
 #include <vector>
 #include <algorithm>
 #include <functional>
+#include <boost/interprocess/ipc/message_queue.hpp>
 
 #define kStrideQuarter      1
 #define kStrideEight        .5
