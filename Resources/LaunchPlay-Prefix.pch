@@ -6,7 +6,9 @@
 //  Copyright (c) 2011 __MyCompanyName__. All rights reserved.
 //
 
+#include <assert.h>
+#include <memory>
 #include <audioeffectx.h>
 #include <boost/utility.hpp>
-#include <boost/bind.hpp>
-#include <assert.h>
+#include <boost/interprocess/ipc/message_queue.hpp>
+

@@ -10,19 +10,23 @@
 #define LaunchPlayVST_LaunchPlayEmitter_h
 
 #include "LaunchPlay.h"
+#include "MIDIHelpers.h"
 
 namespace LaunchPlayVST {
     
     class LaunchPlayEmitter : public LaunchPlayBase {
+        std::auto_ptr<boost::interprocess::message_queue> mq_;
     public:
         LaunchPlayEmitter(audioMasterCallback audioMaster);
-        virtual ~LaunchPlayEmitter();
+        ~LaunchPlayEmitter();
         
-        virtual VstPlugCategory getPlugCategory() { return kPlugCategEffect; }
-        virtual bool getEffectName(char *name);
-        virtual VstInt32 canDo(char *text);
+        VstPlugCategory getPlugCategory() { return kPlugCategEffect; }
+        bool getEffectName(char *name);
+        VstInt32 canDo(char *text);
         
-        virtual void processReplacing (float **inputs, float **outputs, VstInt32 sampleFrames);
+        void open();
+        void close();
+        void processReplacing (float **inputs, float **outputs, VstInt32 sampleFrames);
     };
     
 } // } namespace LaunchPlayVST

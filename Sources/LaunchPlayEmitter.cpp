@@ -9,6 +9,7 @@
 #include "LaunchPlayEmitter.h"
 
 using namespace LaunchPlayVST;
+using namespace boost::interprocess;
 
 #pragma mark createEffectInstance
 #if defined (LAUNCHPLAY_EMITTER_EXPORT)
@@ -39,8 +40,7 @@ bool LaunchPlayEmitter::getEffectName(char* name)
 
 VstInt32 LaunchPlayEmitter::canDo(char *text)
 {
-    if(strcmp(text, "sendVstMidiEvent") == 0 || 
-       strcmp(text, "receiveVstTimeInfo") == 0)
+    if(strcmp(text, "sendVstMidiEvent") == 0)
         return 1;
     
 	if(strcmp(text, "offline") == 0)
@@ -49,8 +49,28 @@ VstInt32 LaunchPlayEmitter::canDo(char *text)
     return 0;
 }    
 
+void LaunchPlayEmitter::open()
+{
+    mq_.reset(new message_queue(open_only, kMessageQueueName));
+}
+
+void LaunchPlayEmitter::close()
+{
+    mq_.release();
+}
+
 void LaunchPlayEmitter::processReplacing(float** inputs, float** outputs, VstInt32 sampleFrames)
 {
+    unsigned int priority;
+    message_queue::size_type recvd_size;
     
-    
+    VstEventsBlock eventsBlock;
+    eventsBlock.allocate(kVstEventsBlockSize);
+
+    if(mq_.get() != NULL && mq_->try_receive(&eventsBlock, sizeof(eventsBlock), recvd_size, priority)) {
+        VstEvents *events = (VstEvents*) &eventsBlock;
+        sendVstEventsToHost(events);
+    }
+
+    eventsBlock.deallocate();
 }

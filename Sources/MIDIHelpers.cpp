@@ -90,6 +90,57 @@ void VstEventsBlock::debugVstEvents(VstEvents const* events, char midiEventToWat
     }
 }
 
+#pragma mark MIDIHelper
+const int MIDIHelper::majorScaleOffsets[] = {0, 2, 4, 5, 7, 9, 11, 12};
+const int MIDIHelper::minorScaleOffsets[] = {0, 2, 3, 5, 7, 8, 10, 12};
+
+VstMidiEvent MIDIHelper::createNoteOn(VstInt32 baseNoteOffset, 
+                                    Scale scale, 
+                                    VstInt32 offset, 
+                                    VstInt32 deltaFrames)
+{
+    assert(offset >= 0 && offset < 8);
+    
+    VstMidiEvent midiEvent;
+    VstInt32 note(kMIDIMiddleCNoteNumber + baseNoteOffset);
+    
+    switch (scale) {
+        case majorScale:
+            note += majorScaleOffsets[offset];
+            break;
+        case minorScale:
+            note += minorScaleOffsets[offset];
+            break;
+    }
+    
+    midiEvent.type = kVstMidiType;
+    midiEvent.byteSize = SIZEOFMIDIEVENT;
+    midiEvent.deltaFrames = deltaFrames;
+    midiEvent.flags = kVstMidiEventIsRealtime;
+    midiEvent.midiData[0] = kMIDINoteOnEvent;
+    midiEvent.midiData[1] = (unsigned char) note;
+    midiEvent.midiData[2] = kMIDIVelocityMax;
+    midiEvent.noteLength = (midiEvent.noteOffset = (midiEvent.noteOffVelocity = (midiEvent.detune = 0)));
+
+    return midiEvent;
+}
+
+VstMidiEvent MIDIHelper::createNoteOff(VstInt32 baseNoteOffset, 
+                                    Scale scale, 
+                                    VstInt32 offset, 
+                                    VstInt32 deltaFrames)
+{
+    
+     VstMidiEvent midiEvent = createNoteOn(baseNoteOffset, 
+                                           scale, 
+                                           offset, 
+                                           deltaFrames);
+    
+    midiEvent.midiData[0] = kMIDINoteOffEvent;
+    midiEvent.midiData[2] = kMIDIVelocityMin;
+    return midiEvent;
+}
+
 #pragma mark LaunchPadHelper
 bool LaunchPadHelper::isValidMessage(VstMidiEvent const* event)
 {
