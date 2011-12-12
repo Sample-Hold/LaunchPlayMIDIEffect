@@ -183,10 +183,12 @@ void GridSequencer::processForward(double tempo, double ppq, double beatsPerSamp
 void GridSequencer::generateNotes(double beatsPerSample, VstInt32 sampleOffset)
 {
     for(WorkerListIter it = workers_.begin(); it != workers_.end(); ++it) {
-        if(!it->y == 0)
-            continue;
+        if(it->y == 0)
+            notes_.push_back(MIDIHelper::createNoteOn(baseNote_, scale_, VstInt32(it->x), sampleOffset));
         
-        notes_.push_back(MIDIHelper::createNoteOn(baseNote_, scale_, VstInt32(it->x), sampleOffset));
+        if(std::count_if(workers_.begin(), workers_.end(), std::bind2nd(EqualLocations(), *it)) > 0)
+            notes_.push_back(MIDIHelper::createNoteOn(baseNote_, scale_, VstInt32(it->x), sampleOffset));
+        
         //notes_.push_back(MIDIHelper::createNoteOff(baseNote_, scale_, VstInt32(it->x), sampleOffset + .05 / beatsPerSample));
     }
 }
