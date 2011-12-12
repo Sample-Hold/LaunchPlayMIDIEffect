@@ -7,9 +7,31 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B62EC41C14901ED3002EF0E8 /* LaunchPlaySequencer.h in Headers */ = {isa = PBXBuildFile; fileRef = B62EC41B14901ED3002EF0E8 /* LaunchPlaySequencer.h */; };
+		B62EC41F14901F29002EF0E8 /* LaunchPlayEmitter.h in Headers */ = {isa = PBXBuildFile; fileRef = B62EC41E14901F28002EF0E8 /* LaunchPlayEmitter.h */; };
+		B62EC42114901F5D002EF0E8 /* LaunchPlaySequencer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B62EC42014901F5D002EF0E8 /* LaunchPlaySequencer.cpp */; };
+		B62EC42314901F6F002EF0E8 /* LaunchPlayEmitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B62EC42214901F6F002EF0E8 /* LaunchPlayEmitter.cpp */; };
+		B62EC426149021D9002EF0E8 /* aeffect.h in Headers */ = {isa = PBXBuildFile; fileRef = B6E46CD4148C564300B27E81 /* aeffect.h */; };
+		B62EC427149021D9002EF0E8 /* aeffectx.h in Headers */ = {isa = PBXBuildFile; fileRef = B6E46CD5148C564300B27E81 /* aeffectx.h */; };
+		B62EC428149021D9002EF0E8 /* vstfxstore.h in Headers */ = {isa = PBXBuildFile; fileRef = B6E46CD6148C564300B27E81 /* vstfxstore.h */; };
+		B62EC429149021D9002EF0E8 /* aeffeditor.h in Headers */ = {isa = PBXBuildFile; fileRef = B6E46CCB148C563700B27E81 /* aeffeditor.h */; };
+		B62EC42A149021D9002EF0E8 /* audioeffect.h in Headers */ = {isa = PBXBuildFile; fileRef = B6E46CCD148C563700B27E81 /* audioeffect.h */; };
+		B62EC42B149021D9002EF0E8 /* audioeffectx.h in Headers */ = {isa = PBXBuildFile; fileRef = B6E46CCF148C563700B27E81 /* audioeffectx.h */; };
+		B62EC42C149021D9002EF0E8 /* LaunchPlay.h in Headers */ = {isa = PBXBuildFile; fileRef = B6D35B11148AA30500CE3830 /* LaunchPlay.h */; };
+		B62EC42F149021D9002EF0E8 /* LaunchPlaySequencer.h in Headers */ = {isa = PBXBuildFile; fileRef = B62EC41B14901ED3002EF0E8 /* LaunchPlaySequencer.h */; };
+		B62EC430149021D9002EF0E8 /* LaunchPlayEmitter.h in Headers */ = {isa = PBXBuildFile; fileRef = B62EC41E14901F28002EF0E8 /* LaunchPlayEmitter.h */; };
+		B62EC432149021D9002EF0E8 /* LaunchPlay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6D35B13148AA31500CE3830 /* LaunchPlay.cpp */; };
+		B62EC433149021D9002EF0E8 /* audioeffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6E46CCC148C563700B27E81 /* audioeffect.cpp */; };
+		B62EC434149021D9002EF0E8 /* audioeffectx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6E46CCE148C563700B27E81 /* audioeffectx.cpp */; };
+		B62EC435149021D9002EF0E8 /* vstplugmain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6E46CD0148C563700B27E81 /* vstplugmain.cpp */; };
+		B62EC437149021D9002EF0E8 /* LaunchPlaySequencer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B62EC42014901F5D002EF0E8 /* LaunchPlaySequencer.cpp */; };
+		B62EC438149021D9002EF0E8 /* LaunchPlayEmitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B62EC42214901F6F002EF0E8 /* LaunchPlayEmitter.cpp */; };
+		B62EC43A149021D9002EF0E8 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B6D35B51148AB03700CE3830 /* InfoPlist.strings */; };
+		B62EC444149022B5002EF0E8 /* LaunchPlayEmitter.vst in CopyFiles */ = {isa = PBXBuildFile; fileRef = B62EC440149021D9002EF0E8 /* LaunchPlayEmitter.vst */; };
+		B6B2E9F91490550D0045EF25 /* LaunchPlay-Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = B6B2E9F81490550D0045EF25 /* LaunchPlay-Prefix.pch */; };
 		B6D35B43148AAF3900CE3830 /* LaunchPlay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6D35B13148AA31500CE3830 /* LaunchPlay.cpp */; };
 		B6D35B53148AB03700CE3830 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B6D35B51148AB03700CE3830 /* InfoPlist.strings */; };
-		B6D35B6C148AB9CD00CE3830 /* LaunchPlay.vst in CopyFiles */ = {isa = PBXBuildFile; fileRef = B6D35B31148AAF0D00CE3830 /* LaunchPlay.vst */; };
+		B6D35B6C148AB9CD00CE3830 /* LaunchPlaySequencer.vst in CopyFiles */ = {isa = PBXBuildFile; fileRef = B6D35B31148AAF0D00CE3830 /* LaunchPlaySequencer.vst */; };
 		B6E46CD1148C563700B27E81 /* audioeffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6E46CCC148C563700B27E81 /* audioeffect.cpp */; };
 		B6E46CD2148C563700B27E81 /* audioeffectx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6E46CCE148C563700B27E81 /* audioeffectx.cpp */; };
 		B6E46CD3148C563700B27E81 /* vstplugmain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6E46CD0148C563700B27E81 /* vstplugmain.cpp */; };
@@ -20,31 +42,58 @@
 		B6E46CDC148C573800B27E81 /* audioeffect.h in Headers */ = {isa = PBXBuildFile; fileRef = B6E46CCD148C563700B27E81 /* audioeffect.h */; };
 		B6E46CDD148C573800B27E81 /* audioeffectx.h in Headers */ = {isa = PBXBuildFile; fileRef = B6E46CCF148C563700B27E81 /* audioeffectx.h */; };
 		B6E46CDE148C573800B27E81 /* LaunchPlay.h in Headers */ = {isa = PBXBuildFile; fileRef = B6D35B11148AA30500CE3830 /* LaunchPlay.h */; };
-		B6E58D33148E33A800AE0B4E /* Mindstorm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6E58D32148E33A800AE0B4E /* Mindstorm.cpp */; };
-		B6E58D35148EB8DC00AE0B4E /* LaunchPlayVersion.h in Headers */ = {isa = PBXBuildFile; fileRef = B6E58D34148EB8DC00AE0B4E /* LaunchPlayVersion.h */; };
-		B6E66E8F148D92FC002BE23F /* Mindstorm.h in Headers */ = {isa = PBXBuildFile; fileRef = B6E66E8E148D92FC002BE23F /* Mindstorm.h */; };
+		B6ED5C471490DE06009887AC /* MIDIHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = B6ED5C461490DE06009887AC /* MIDIHelpers.h */; };
+		B6ED5C481490DE06009887AC /* MIDIHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = B6ED5C461490DE06009887AC /* MIDIHelpers.h */; };
+		B6ED5C4A14914DAF009887AC /* MIDIHelpers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6ED5C4914914DAF009887AC /* MIDIHelpers.cpp */; };
+		B6ED5C4B14914DAF009887AC /* MIDIHelpers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6ED5C4914914DAF009887AC /* MIDIHelpers.cpp */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		B62EC44214902202002EF0E8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B6D35AEE148A9D4900CE3830 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B6D35B30148AAF0D00CE3830;
+			remoteInfo = LaunchPlaySequencer;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXCopyFilesBuildPhase section */
+		B62EC43B149021D9002EF0E8 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(USER_LIBRARY_DIR)/Audio/Plug-Ins/VST";
+			dstSubfolderSpec = 0;
+			files = (
+				B62EC444149022B5002EF0E8 /* LaunchPlayEmitter.vst in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B6D35B6B148AB98A00CE3830 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "$(USER_LIBRARY_DIR)/Audio/Plug-Ins/VST";
 			dstSubfolderSpec = 0;
 			files = (
-				B6D35B6C148AB9CD00CE3830 /* LaunchPlay.vst in CopyFiles */,
+				B6D35B6C148AB9CD00CE3830 /* LaunchPlaySequencer.vst in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		B62EC41B14901ED3002EF0E8 /* LaunchPlaySequencer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LaunchPlaySequencer.h; sourceTree = "<group>"; };
+		B62EC41E14901F28002EF0E8 /* LaunchPlayEmitter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LaunchPlayEmitter.h; sourceTree = "<group>"; };
+		B62EC42014901F5D002EF0E8 /* LaunchPlaySequencer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LaunchPlaySequencer.cpp; sourceTree = "<group>"; };
+		B62EC42214901F6F002EF0E8 /* LaunchPlayEmitter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LaunchPlayEmitter.cpp; sourceTree = "<group>"; };
+		B62EC440149021D9002EF0E8 /* LaunchPlayEmitter.vst */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LaunchPlayEmitter.vst; sourceTree = BUILT_PRODUCTS_DIR; };
+		B62EC441149021DA002EF0E8 /* LaunchPlaySequencer copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "LaunchPlaySequencer copy-Info.plist"; path = "/Users/fred/Documents/XCode/Plugins/LaunchPlayVST/LaunchPlaySequencer copy-Info.plist"; sourceTree = "<absolute>"; };
+		B6B2E9F81490550D0045EF25 /* LaunchPlay-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LaunchPlay-Prefix.pch"; sourceTree = "<group>"; };
 		B6D35B11148AA30500CE3830 /* LaunchPlay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LaunchPlay.h; sourceTree = "<group>"; };
 		B6D35B13148AA31500CE3830 /* LaunchPlay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LaunchPlay.cpp; sourceTree = "<group>"; };
-		B6D35B31148AAF0D00CE3830 /* LaunchPlay.vst */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LaunchPlay.vst; sourceTree = BUILT_PRODUCTS_DIR; };
+		B6D35B31148AAF0D00CE3830 /* LaunchPlaySequencer.vst */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LaunchPlaySequencer.vst; sourceTree = BUILT_PRODUCTS_DIR; };
 		B6D35B4F148AB00C00CE3830 /* LaunchPlay-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "LaunchPlay-Info.plist"; sourceTree = "<group>"; };
 		B6D35B52148AB03700CE3830 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		B6D35B54148AB26000CE3830 /* LaunchPlay-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LaunchPlay-Prefix.pch"; sourceTree = "<group>"; };
 		B6E46CCB148C563700B27E81 /* aeffeditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aeffeditor.h; path = ../../../vstsdk2.4/public.sdk/source/vst2.x/aeffeditor.h; sourceTree = "<group>"; };
 		B6E46CCC148C563700B27E81 /* audioeffect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = audioeffect.cpp; path = ../../../vstsdk2.4/public.sdk/source/vst2.x/audioeffect.cpp; sourceTree = "<group>"; };
 		B6E46CCD148C563700B27E81 /* audioeffect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = audioeffect.h; path = ../../../vstsdk2.4/public.sdk/source/vst2.x/audioeffect.h; sourceTree = "<group>"; };
@@ -54,9 +103,8 @@
 		B6E46CD4148C564300B27E81 /* aeffect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aeffect.h; path = ../../../vstsdk2.4/pluginterfaces/vst2.x/aeffect.h; sourceTree = "<group>"; };
 		B6E46CD5148C564300B27E81 /* aeffectx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aeffectx.h; path = ../../../vstsdk2.4/pluginterfaces/vst2.x/aeffectx.h; sourceTree = "<group>"; };
 		B6E46CD6148C564300B27E81 /* vstfxstore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vstfxstore.h; path = ../../../vstsdk2.4/pluginterfaces/vst2.x/vstfxstore.h; sourceTree = "<group>"; };
-		B6E58D32148E33A800AE0B4E /* Mindstorm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Mindstorm.cpp; sourceTree = "<group>"; };
-		B6E58D34148EB8DC00AE0B4E /* LaunchPlayVersion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LaunchPlayVersion.h; sourceTree = "<group>"; };
-		B6E66E8E148D92FC002BE23F /* Mindstorm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Mindstorm.h; sourceTree = "<group>"; };
+		B6ED5C461490DE06009887AC /* MIDIHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MIDIHelpers.h; sourceTree = "<group>"; };
+		B6ED5C4914914DAF009887AC /* MIDIHelpers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MIDIHelpers.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -67,13 +115,15 @@
 				B6D35B01148AA1B100CE3830 /* Sources */,
 				B6D35B32148AAF0D00CE3830 /* Frameworks */,
 				B6D35AF8148A9D4900CE3830 /* Products */,
+				B62EC441149021DA002EF0E8 /* LaunchPlaySequencer copy-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
 		B6D35AF8148A9D4900CE3830 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				B6D35B31148AAF0D00CE3830 /* LaunchPlay.vst */,
+				B6D35B31148AAF0D00CE3830 /* LaunchPlaySequencer.vst */,
+				B62EC440149021D9002EF0E8 /* LaunchPlayEmitter.vst */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -92,7 +142,7 @@
 			children = (
 				B6D35B4F148AB00C00CE3830 /* LaunchPlay-Info.plist */,
 				B6D35B51148AB03700CE3830 /* InfoPlist.strings */,
-				B6D35B54148AB26000CE3830 /* LaunchPlay-Prefix.pch */,
+				B6B2E9F81490550D0045EF25 /* LaunchPlay-Prefix.pch */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -100,11 +150,14 @@
 		B6D35B10148AA2CF00CE3830 /* LaunchPlay */ = {
 			isa = PBXGroup;
 			children = (
-				B6E58D34148EB8DC00AE0B4E /* LaunchPlayVersion.h */,
 				B6D35B11148AA30500CE3830 /* LaunchPlay.h */,
 				B6D35B13148AA31500CE3830 /* LaunchPlay.cpp */,
-				B6E66E8E148D92FC002BE23F /* Mindstorm.h */,
-				B6E58D32148E33A800AE0B4E /* Mindstorm.cpp */,
+				B62EC41B14901ED3002EF0E8 /* LaunchPlaySequencer.h */,
+				B62EC42014901F5D002EF0E8 /* LaunchPlaySequencer.cpp */,
+				B62EC41E14901F28002EF0E8 /* LaunchPlayEmitter.h */,
+				B62EC42214901F6F002EF0E8 /* LaunchPlayEmitter.cpp */,
+				B6ED5C461490DE06009887AC /* MIDIHelpers.h */,
+				B6ED5C4914914DAF009887AC /* MIDIHelpers.cpp */,
 			);
 			name = LaunchPlay;
 			sourceTree = "<group>";
@@ -135,6 +188,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		B62EC425149021D9002EF0E8 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B62EC426149021D9002EF0E8 /* aeffect.h in Headers */,
+				B62EC427149021D9002EF0E8 /* aeffectx.h in Headers */,
+				B62EC428149021D9002EF0E8 /* vstfxstore.h in Headers */,
+				B62EC429149021D9002EF0E8 /* aeffeditor.h in Headers */,
+				B62EC42A149021D9002EF0E8 /* audioeffect.h in Headers */,
+				B62EC42B149021D9002EF0E8 /* audioeffectx.h in Headers */,
+				B62EC42C149021D9002EF0E8 /* LaunchPlay.h in Headers */,
+				B62EC42F149021D9002EF0E8 /* LaunchPlaySequencer.h in Headers */,
+				B62EC430149021D9002EF0E8 /* LaunchPlayEmitter.h in Headers */,
+				B6ED5C481490DE06009887AC /* MIDIHelpers.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B6E46CD7148C572500B27E81 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -146,17 +216,38 @@
 				B6E46CDC148C573800B27E81 /* audioeffect.h in Headers */,
 				B6E46CDD148C573800B27E81 /* audioeffectx.h in Headers */,
 				B6E46CDE148C573800B27E81 /* LaunchPlay.h in Headers */,
-				B6E66E8F148D92FC002BE23F /* Mindstorm.h in Headers */,
-				B6E58D35148EB8DC00AE0B4E /* LaunchPlayVersion.h in Headers */,
+				B62EC41C14901ED3002EF0E8 /* LaunchPlaySequencer.h in Headers */,
+				B62EC41F14901F29002EF0E8 /* LaunchPlayEmitter.h in Headers */,
+				B6B2E9F91490550D0045EF25 /* LaunchPlay-Prefix.pch in Headers */,
+				B6ED5C471490DE06009887AC /* MIDIHelpers.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		B6D35B30148AAF0D00CE3830 /* LaunchPlay */ = {
+		B62EC424149021D9002EF0E8 /* LaunchPlayEmitter */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B6D35B40148AAF0E00CE3830 /* Build configuration list for PBXNativeTarget "LaunchPlay" */;
+			buildConfigurationList = B62EC43D149021D9002EF0E8 /* Build configuration list for PBXNativeTarget "LaunchPlayEmitter" */;
+			buildPhases = (
+				B62EC425149021D9002EF0E8 /* Headers */,
+				B62EC431149021D9002EF0E8 /* Sources */,
+				B62EC439149021D9002EF0E8 /* Resources */,
+				B62EC43B149021D9002EF0E8 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B62EC44314902202002EF0E8 /* PBXTargetDependency */,
+			);
+			name = LaunchPlayEmitter;
+			productName = LaunchPad;
+			productReference = B62EC440149021D9002EF0E8 /* LaunchPlayEmitter.vst */;
+			productType = "com.apple.product-type.bundle";
+		};
+		B6D35B30148AAF0D00CE3830 /* LaunchPlaySequencer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B6D35B40148AAF0E00CE3830 /* Build configuration list for PBXNativeTarget "LaunchPlaySequencer" */;
 			buildPhases = (
 				B6E46CD7148C572500B27E81 /* Headers */,
 				B6D35B2D148AAF0D00CE3830 /* Sources */,
@@ -167,9 +258,9 @@
 			);
 			dependencies = (
 			);
-			name = LaunchPlay;
+			name = LaunchPlaySequencer;
 			productName = LaunchPad;
-			productReference = B6D35B31148AAF0D00CE3830 /* LaunchPlay.vst */;
+			productReference = B6D35B31148AAF0D00CE3830 /* LaunchPlaySequencer.vst */;
 			productType = "com.apple.product-type.bundle";
 		};
 /* End PBXNativeTarget section */
@@ -192,12 +283,21 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				B6D35B30148AAF0D00CE3830 /* LaunchPlay */,
+				B6D35B30148AAF0D00CE3830 /* LaunchPlaySequencer */,
+				B62EC424149021D9002EF0E8 /* LaunchPlayEmitter */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		B62EC439149021D9002EF0E8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B62EC43A149021D9002EF0E8 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B6D35B2F148AAF0D00CE3830 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -209,6 +309,20 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		B62EC431149021D9002EF0E8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B62EC432149021D9002EF0E8 /* LaunchPlay.cpp in Sources */,
+				B62EC433149021D9002EF0E8 /* audioeffect.cpp in Sources */,
+				B62EC434149021D9002EF0E8 /* audioeffectx.cpp in Sources */,
+				B62EC435149021D9002EF0E8 /* vstplugmain.cpp in Sources */,
+				B62EC437149021D9002EF0E8 /* LaunchPlaySequencer.cpp in Sources */,
+				B62EC438149021D9002EF0E8 /* LaunchPlayEmitter.cpp in Sources */,
+				B6ED5C4B14914DAF009887AC /* MIDIHelpers.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B6D35B2D148AAF0D00CE3830 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -217,11 +331,21 @@
 				B6E46CD1148C563700B27E81 /* audioeffect.cpp in Sources */,
 				B6E46CD2148C563700B27E81 /* audioeffectx.cpp in Sources */,
 				B6E46CD3148C563700B27E81 /* vstplugmain.cpp in Sources */,
-				B6E58D33148E33A800AE0B4E /* Mindstorm.cpp in Sources */,
+				B62EC42114901F5D002EF0E8 /* LaunchPlaySequencer.cpp in Sources */,
+				B62EC42314901F6F002EF0E8 /* LaunchPlayEmitter.cpp in Sources */,
+				B6ED5C4A14914DAF009887AC /* MIDIHelpers.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		B62EC44314902202002EF0E8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B6D35B30148AAF0D00CE3830 /* LaunchPlaySequencer */;
+			targetProxy = B62EC44214902202002EF0E8 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		B6D35B51148AB03700CE3830 /* InfoPlist.strings */ = {
@@ -235,6 +359,61 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		B62EC43E149021D9002EF0E8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "";
+				CLANG_CXX_LIBRARY = "";
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Resources/LaunchPlay-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"LAUNCHPLAY_EMITTER_EXPORT=1",
+					"$(inherited)",
+				);
+				GCC_VERSION = "";
+				GENERATE_PKGINFO_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					/opt/local/include/,
+					"$(SRCROOT)/../../vstsdk2.4/",
+				);
+				INFOPLIST_FILE = "LaunchPlaySequencer copy-Info.plist";
+				INFOPLIST_PREPROCESS = NO;
+				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Audio/Plug-Ins/VST";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = "";
+				USER_HEADER_SEARCH_PATHS = "";
+				WRAPPER_EXTENSION = vst;
+			};
+			name = Debug;
+		};
+		B62EC43F149021D9002EF0E8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "";
+				CLANG_CXX_LIBRARY = "";
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Resources/LaunchPlay-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = "LAUNCHPLAY_EMITTER_EXPORT=1";
+				GCC_VERSION = "";
+				GENERATE_PKGINFO_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					/opt/local/include/,
+					"$(SRCROOT)/../../vstsdk2.4/",
+				);
+				INFOPLIST_FILE = "LaunchPlaySequencer copy-Info.plist";
+				INFOPLIST_PREPROCESS = NO;
+				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Audio/Plug-Ins/VST";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = "";
+				USER_HEADER_SEARCH_PATHS = "";
+				WRAPPER_EXTENSION = vst;
+			};
+			name = Release;
+		};
 		B6D35AF9148A9D4900CE3830 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -315,6 +494,10 @@
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Resources/LaunchPlay-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"LAUNCHPLAY_SEQUENCER_EXPORT=1",
+					"$(inherited)",
+				);
 				GCC_VERSION = "";
 				GENERATE_PKGINFO_FILE = YES;
 				HEADER_SEARCH_PATHS = (
@@ -340,6 +523,7 @@
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Resources/LaunchPlay-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = "LAUNCHPLAY_SEQUENCER_EXPORT=1";
 				GCC_VERSION = "";
 				GENERATE_PKGINFO_FILE = YES;
 				HEADER_SEARCH_PATHS = (
@@ -360,6 +544,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		B62EC43D149021D9002EF0E8 /* Build configuration list for PBXNativeTarget "LaunchPlayEmitter" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B62EC43E149021D9002EF0E8 /* Debug */,
+				B62EC43F149021D9002EF0E8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		B6D35AF1148A9D4900CE3830 /* Build configuration list for PBXProject "LaunchPlayVST" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -369,7 +562,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B6D35B40148AAF0E00CE3830 /* Build configuration list for PBXNativeTarget "LaunchPlay" */ = {
+		B6D35B40148AAF0E00CE3830 /* Build configuration list for PBXNativeTarget "LaunchPlaySequencer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B6D35B41148AAF0E00CE3830 /* Debug */,

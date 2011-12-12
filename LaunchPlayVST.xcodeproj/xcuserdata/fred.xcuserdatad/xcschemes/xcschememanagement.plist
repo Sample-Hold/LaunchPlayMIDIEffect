@@ -4,14 +4,24 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
-		<key>LaunchPlay.xcscheme</key>
+		<key>LaunchPlayEmitter.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>13</integer>
 		</dict>
+		<key>LaunchPlaySequencer.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>12</integer>
+		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
+		<key>B62EC424149021D9002EF0E8</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>B6D35AF6148A9D4900CE3830</key>
 		<dict>
 			<key>primary</key>
