@@ -3,9 +3,9 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
     <UserLibraries>C:\Users\Fred\Documents\Visual Studio 2010\UserLibraries</UserLibraries>
-    <VstHostDir>C:\Program Files (x86)\Steinberg\Cubase 5</VstHostDir>
+    <VstHostDir>$(ProgramFiles)\Steinberg\Cubase 5</VstHostDir>
     <VstHostExecutable>Cubase5.exe</VstHostExecutable>
-    <VstPluginsDir>C:\Program Files (x86)\Steinberg\VstPlugins</VstPluginsDir>
+    <VstPluginsDir>$(ProgramFiles)\Steinberg\VstPlugins</VstPluginsDir>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup />
