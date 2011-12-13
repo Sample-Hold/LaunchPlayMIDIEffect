@@ -14,7 +14,6 @@
 #define BEATSPERSAMPLE(tempo, sampleRate) (tempo) / (sampleRate) / 60.0
 
 using namespace LaunchPlayVST;
-using namespace boost::interprocess;
 
 #pragma mark createEffectInstance
 #if defined (LAUNCHPLAY_SEQUENCER_EXPORT)
@@ -30,23 +29,30 @@ SequencerBase::~SequencerBase()
     
 }
 
-void SequencerBase::sendMIDIEventsToEmitter(message_queue *mq)
+void SequencerBase::sendMidiEventsToHost(LaunchPlayBase *plugin)
 {
-    assert(mq != NULL);
-    
+	assert(plugin != NULL);
+
+	if(midiEventsCount() == 0)
+		return;
+
     VstEventsBlock eventsBlock;
     eventsBlock.allocate(midiEventsCount());
     flushMidiEvents(eventsBlock);
     
-    mq->send(&eventsBlock, sizeof(eventsBlock), 0);
+    VstEvents *events = (VstEvents*) &eventsBlock;
+    plugin->sendVstEventsToHost(events);
     
-    eventsBlock.deallocate(); 
+    eventsBlock.deallocate();
 }
 
 void SequencerBase::sendFeedbackEventsToHost(LaunchPlayBase *plugin)
 {
     assert(plugin != NULL);
-    
+
+	if(feedbackEventsCount() == 0)
+		return;
+
     VstEventsBlock eventsBlock;
     eventsBlock.allocate(feedbackEventsCount());
     flushFeedbackEvents(eventsBlock);
@@ -57,22 +63,35 @@ void SequencerBase::sendFeedbackEventsToHost(LaunchPlayBase *plugin)
     eventsBlock.deallocate();
 }
 
-#pragma mark GridSequencer
+#pragma mark Worker / GridSequencer
+Worker::Worker() : uniqueID(VstInt32(time(NULL)))
+{
+
+}
+
 GridSequencer::GridSequencer(size_t width, size_t height)
-: scale_(MIDIHelper::majorScale), baseNote_(0)
+	: scale_(MIDIHelper::logScaleMajor), baseNote_(0), octaves_(new VstInt32[MIDIHelper::kMaxChannels])
 {
     boundaries_.x = width;
     boundaries_.y = height;
+
+	for(VstInt32 i = 0; i < MIDIHelper::kMaxChannels; ++i)
+		octaves_[i] = 0;
 }
 
 GridSequencer::~GridSequencer()
 {
-    
+
 }
 
 bool GridSequencer::EqualLocations::operator()(Worker const& a, Worker const& b) const 
 {
-    return a.uniqueID != b.uniqueID && a.x == b.x && a.y == b.y;
+    return a.uniqueID != b.uniqueID && a.channel == b.channel && a.x == b.x && a.y == b.y;
+}
+
+bool GridSequencer::EqualChannel::operator()(Worker const& worker, VstInt32 channel) const 
+{
+	return channel == -1 || worker.channel == channel;
 }
 
 void GridSequencer::MoveForward::operator()(Worker & worker, Worker const& boundaries) const
@@ -93,7 +112,7 @@ void GridSequencer::MoveForward::operator()(Worker & worker, Worker const& bound
     }
 }
 
-void GridSequencer::HandleCollisions::operator()(Worker & worker, WorkerList const& workerList) const
+void GridSequencer::HandleCollisions::operator()(Worker &worker, WorkerList const& workerList) const
 {
     if(std::count_if(workerList.begin(), 
                      workerList.end(),
@@ -104,6 +123,12 @@ void GridSequencer::HandleCollisions::operator()(Worker & worker, WorkerList con
         (worker.direction == down) ? up :
         (worker.direction == left) ? right : left;
     }
+}
+
+bool GridSequencer::TestDelayedMidiEvents::operator()(VstDelayedMidiEvent const& delayedMidiEvent, double ppq) const
+{
+	double diff = ppq - delayedMidiEvent.ppqStart;
+	return (diff >= kStrideEight); // midi events are delayed each 1/8th notes
 }
 
 WorkerListIter GridSequencer::getWorkersBeginIterator()
@@ -118,8 +143,9 @@ WorkerListIter GridSequencer::getWorkersEndIterator()
 
 bool GridSequencer::addWorker(Worker const& worker)
 {
-    assert(worker.x < boundaries_.x && worker.y < boundaries_.y);
-    
+	if(worker.x >= boundaries_.x || worker.y >= boundaries_.y)
+		return false;
+
     if(workers_.empty() || countWorkersAtLocation(worker) == 0)
     {
         workers_.push_back(worker);
@@ -131,32 +157,41 @@ bool GridSequencer::addWorker(Worker const& worker)
 
 bool GridSequencer::removeWorkers(Worker const& worker)
 {
-    assert(worker.x < boundaries_.x && worker.y < boundaries_.y);
-    
+    if(worker.x >= boundaries_.x || worker.y >= boundaries_.y)
+		return false;
+
     if (workers_.empty())
         return false;
 
     bool workersWereRemoved = false;
     WorkerListIter it;
-    while((it = std::find_if(workers_.begin(), 
-                          workers_.end(), 
-                          std::bind2nd(EqualLocations(), worker))) != workers_.end())
+    while((it = std::find_if(workers_.begin(),
+							 workers_.end(),
+							 std::bind2nd(EqualLocations(), worker))) != workers_.end())
     {
         workersWereRemoved = true;
         workers_.erase(it);
     }
     
     return workersWereRemoved;
-    
 }
 
-bool GridSequencer::removeAllWorkers() 
+bool GridSequencer::removeAllWorkers(VstInt32 channel) 
 {
     if(workers_.empty())
         return false;
+
+	bool workersWereRemoved = false;
+    WorkerListIter it;
+    while((it = std::find_if(workers_.begin(),
+							 workers_.end(),
+							 std::bind2nd(EqualChannel(), channel))) != workers_.end())
+    {
+        workersWereRemoved = true;
+        workers_.erase(it);
+    }
     
-    workers_.clear();
-    return true;
+    return workersWereRemoved;
 }
 
 size_t GridSequencer::countWorkersAtLocation(Worker const& worker)
@@ -168,7 +203,7 @@ size_t GridSequencer::countWorkersAtLocation(Worker const& worker)
     return count;
 }
 
-void GridSequencer::processForward(double tempo, double ppq, double beatsPerSample, VstInt32 sampleOffset)
+void GridSequencer::processForward(double tempo, double ppq, double sampleRate, VstInt32 sampleOffset)
 {
     // move all workers
     for_each(workers_.begin(), workers_.end(), std::bind2nd(MoveForward(), boundaries_));
@@ -177,39 +212,59 @@ void GridSequencer::processForward(double tempo, double ppq, double beatsPerSamp
     for_each(workers_.begin(), workers_.end(), std::bind2nd(HandleCollisions(), workers_)); 
     
     // generate notes
-    generateNotes(beatsPerSample, sampleOffset);
+	generateNotes(ppq, sampleOffset);
 }
 
-void GridSequencer::generateNotes(double beatsPerSample, VstInt32 sampleOffset)
+void GridSequencer::generateNotes(double ppq, VstInt32 sampleOffset)
 {
-    for(WorkerListIter it = workers_.begin(); it != workers_.end(); ++it) {
-        if(it->y == 0)
-            notes_.push_back(MIDIHelper::createNoteOn(baseNote_, scale_, VstInt32(it->x), sampleOffset));
-        
-        if(std::count_if(workers_.begin(), workers_.end(), std::bind2nd(EqualLocations(), *it)) > 0)
-            notes_.push_back(MIDIHelper::createNoteOn(baseNote_, scale_, VstInt32(it->x), sampleOffset));
-        
-        //notes_.push_back(MIDIHelper::createNoteOff(baseNote_, scale_, VstInt32(it->x), sampleOffset + .05 / beatsPerSample));
+    for(WorkerListIter it = workers_.begin(); it != workers_.end(); ++it) 
+	{
+		// notes are generated by workers at the topmost location and workers being in collision
+        if(it->y == 0 ||
+		   std::count_if(workers_.begin(), workers_.end(), std::bind2nd(EqualLocations(), *it)) > 0)
+		{
+			midiEvents_.push_back(MIDIHelper::createNoteOn(baseNote_, octaves_[it->channel], scale_, VstInt32(it->x), it->channel, sampleOffset));
+			delayedMidiEvents_.push_back(VstDelayedMidiEvent(MIDIHelper::createNoteOff(baseNote_, octaves_[it->channel], scale_, VstInt32(it->x), it->channel, sampleOffset), ppq));
+		}
+	}
+
+	// delayed events are put back in midiEvents_, in order to delay notes off events
+	VstDelayedMidiEventListIter it;
+    while((it = std::find_if(delayedMidiEvents_.begin(), 
+							 delayedMidiEvents_.end(), 
+							 std::bind2nd(TestDelayedMidiEvents(), ppq))) != delayedMidiEvents_.end())
+    {
+		midiEvents_.push_back(it->toMidiEvent(sampleOffset));
+		delayedMidiEvents_.erase(it);
     }
 }
 
 size_t GridSequencer::midiEventsCount() const
 {
-    return notes_.size();
+    return midiEvents_.size();
 }
 
 void GridSequencer::flushMidiEvents(VstEventsBlock &events)
 {
-    for (size_t i = 0; i < notes_.size(); ++i)        
-        VstEventsBlock::convertMidiEvent(notes_[i], events.events[i]);
+    for (size_t i = 0; i < midiEvents_.size(); ++i)        
+        VstEventsBlock::convertMidiEvent(midiEvents_[i], events.events[i]);
     
-    notes_.clear();
+    midiEvents_.clear();
 }
 
 void GridSequencer::setBaseNote(VstInt32 note)
 {
-    assert(note >= 0 && note < 12);
+    assert(note >= 0 && note <= MIDIHelper::kBaseNoteOffsetMaxValue);
     baseNote_ = note;
+}
+
+void GridSequencer::setOctave(VstInt32 channelOffset, VstInt32 octave) 
+{
+	assert(channelOffset >= 0 && channelOffset <= MIDIHelper::kChannelOffsetMaxValue && 
+			octave >= MIDIHelper::kBaseNoteMinOctave && 
+			octave <= MIDIHelper::kBaseNoteMaxOctave);
+
+	octaves_[channelOffset] = octave;
 }
 
 void GridSequencer::setScale(MIDIHelper::Scale scale)
@@ -222,6 +277,11 @@ VstInt32 GridSequencer::getBaseNote() const
     return baseNote_;
 }
 
+VstInt32 GridSequencer::getOctave(VstInt32 channel) const 
+{
+	return octaves_[channel];
+}
+
 MIDIHelper::Scale GridSequencer::getScale() const 
 {
     return scale_;
@@ -230,7 +290,12 @@ MIDIHelper::Scale GridSequencer::getScale() const
 #pragma mark LaunchPadSequencer
 LaunchPadSequencer::LaunchPadSequencer()
 : GridSequencer(kLaunchPadWidth, kLaunchPadHeight), 
-currentDirection_(up), currentEditMode_(addWorkersMode), primaryBufferEnabled_(false)
+currentDirection_(up), 
+currentChannelOffset_(kLaunchPadChannelOffset), 
+currentEditMode_(addWorkersMode), 
+tempWorker_(NULL),
+primaryBufferEnabled_(false),
+removeAll_(false)
 {
     
 }
@@ -265,8 +330,11 @@ void LaunchPadSequencer::cleanWorkers(VstInt32 deltaFrames)
 void LaunchPadSequencer::showWorkers(VstInt32 deltaFrames)
 {
     for(WorkerListIter it = getWorkersBeginIterator(); it != getWorkersEndIterator(); ++it) {
-        bool collision = countWorkersAtLocation(*it) > 0;
-        
+		if(it->channel != currentChannelOffset_)
+			continue;
+		
+		bool collision = countWorkersAtLocation(*it) > 0;
+
         eventsBuffer_.push_back(LaunchPadHelper::createGridButtonMessage(it->x, 
                                                                          it->y,
                                                                          collision ? 
@@ -307,7 +375,7 @@ void LaunchPadSequencer::showRemoveButton(VstInt32 deltaFrames)
 
 void LaunchPadSequencer::showTick(double ppq, VstInt32 deltaFrames)
 {
-    bool tickTack = VstInt32(floor(ppq)) % 2 == 0;
+    bool tickTack = VstInt32(floor(ppq)) % kStrideHalf == 0;
     
     eventsBuffer_.push_back(LaunchPadHelper::createTopButtonMessage(6, 
                                                                     tickTack? 
@@ -319,6 +387,19 @@ void LaunchPadSequencer::showTick(double ppq, VstInt32 deltaFrames)
                                                                     LaunchPadHelper::off : 
                                                                     LaunchPadHelper::fullRed,
                                                                     deltaFrames));
+}
+
+void LaunchPadSequencer::showActiveChannel(VstInt32 deltaFrames)
+{
+	for (VstInt32 i = 0; i < 8; ++i)
+	{
+		bool activeChannel  = (i+1 == currentChannelOffset_);
+        eventsBuffer_.push_back(LaunchPadHelper::createRightButtonMessage(i, 
+                                                                        activeChannel ?
+                                                                        LaunchPadHelper::fullGreen : 
+                                                                        LaunchPadHelper::off,
+                                                                        deltaFrames));
+	}
 }
 
 void LaunchPadSequencer::swapBuffers(VstInt32 deltaFrames)
@@ -344,16 +425,17 @@ void LaunchPadSequencer::flushFeedbackEvents(VstEventsBlock &events)
 void LaunchPadSequencer::init()
 {
     resetLaunchPad(0);
+	setXYLayout(0);
 }
 
-void LaunchPadSequencer::processForward(double tempo, double ppq, double beatsPerSample, VstInt32 sampleOffset) 
+void LaunchPadSequencer::processForward(double tempo, double ppq, double sampleRate, VstInt32 sampleOffset) 
 {
     // turn workers off
     cleanWorkers(sampleOffset);
     
     // check for "remove all" request
     if(removeAll_) {
-        removeAllWorkers();
+		removeAllWorkers(currentChannelOffset_);
         removeAll_ = false;
     }
     
@@ -364,7 +446,7 @@ void LaunchPadSequencer::processForward(double tempo, double ppq, double beatsPe
     }
     
     // process forward
-    GridSequencer::processForward(tempo, ppq, beatsPerSample, sampleOffset);
+    GridSequencer::processForward(tempo, ppq, sampleRate, sampleOffset);
     
     // check for "add worker" request
     if(tempWorker_.get() != NULL && currentEditMode_ == addWorkersMode) {
@@ -379,6 +461,7 @@ void LaunchPadSequencer::processForward(double tempo, double ppq, double beatsPe
     showDirections(sampleOffset);
     showEditMode(sampleOffset);
     showRemoveButton(sampleOffset);
+	showActiveChannel(sampleOffset);
     showTick(ppq, sampleOffset);
 }
 
@@ -407,6 +490,12 @@ void LaunchPadSequencer::processUserEvents(VstEvents *eventPtr)
                 removeWorkersMode : addWorkersMode; 
                 continue;
             }
+
+			// request to change channel
+			if(userInput.isRightButton && userInput.btnPressed && userInput.btnNumber < 8) {
+				currentChannelOffset_ = userInput.btnNumber + 1;
+				continue;
+			}
             
             // request to remove all workers
             if(userInput.isTopButton && userInput.btnPressed && userInput.btnNumber == 5) {
@@ -417,10 +506,10 @@ void LaunchPadSequencer::processUserEvents(VstEvents *eventPtr)
             // request to remove a worker 
             if(userInput.isGridButton && userInput.btnReleased) {
                 tempWorker_ = std::auto_ptr<Worker>(new Worker);
-                tempWorker_->uniqueID = VstInt32(time(NULL));
                 tempWorker_->x = userInput.x;
                 tempWorker_->y = userInput.y;
                 tempWorker_->direction = currentDirection_;
+				tempWorker_->channel = currentChannelOffset_;
                 continue;
             }
         }
@@ -429,16 +518,26 @@ void LaunchPadSequencer::processUserEvents(VstEvents *eventPtr)
 
 #pragma mark LaunchPlaySequencer
 LaunchPlaySequencer::LaunchPlaySequencer(audioMasterCallback audioMaster)
-: LaunchPlayBase(audioMaster, 0, 2)
+: LaunchPlayBase(audioMaster, 0, 10), sequencer_(new LaunchPadSequencer)
 { 
     setUniqueID(kSeqUniqueID);
     noTail();
-    isSynth();
+	isSynth();
 }
 
 LaunchPlaySequencer::~LaunchPlaySequencer()
 {
-    
+
+}
+
+void LaunchPlaySequencer::open()
+{
+    sequencer_->init();
+}
+
+void LaunchPlaySequencer::close()
+{
+
 }
 
 bool LaunchPlaySequencer::getEffectName(char* name)
@@ -449,7 +548,9 @@ bool LaunchPlaySequencer::getEffectName(char* name)
 
 VstInt32 LaunchPlaySequencer::canDo(char *text)
 {
-    if(strcmp(text, "sendVstMidiEvent") == 0 || 
+    if(strcmp(text, "sendVstEvents") == 0 || 
+	   strcmp(text, "sendVstMidiEvent") == 0 || 
+	   strcmp(text, "receiveVstEvents") == 0 || 
        strcmp(text, "receiveVstMidiEvent") == 0 ||
        strcmp(text, "receiveVstTimeInfo") == 0)
         return 1;
@@ -464,10 +565,18 @@ float LaunchPlaySequencer::getParameter(VstInt32 index)
 {
     switch (index) {
         case 0: // base note
-            return float(sequencer_->getBaseNote()) / MIDIHelper::kBaseNoteMaxValue;
+            return normalizeValue(sequencer_->getBaseNote(), MIDIHelper::kBaseNoteOffsetMaxValue);
         case 1: // scale
-            return float(sequencer_->getScale()) / MIDIHelper::kScaleMaxValue;
+			return normalizeValue(sequencer_->getScale(), MIDIHelper::kScaleMaxValue);
     }
+
+	if(index > 1 && index < 10) { // octave for each channel
+		VstInt32 channelOffset = index - kLaunchPadChannelOffset;
+		VstInt32 maxValue = abs(MIDIHelper::kBaseNoteMinOctave) + abs(MIDIHelper::kBaseNoteMaxOctave);
+		VstInt32 normalizedOctave = sequencer_->getOctave(channelOffset) +  abs(MIDIHelper::kBaseNoteMinOctave);
+
+		return normalizeValue(normalizedOctave, maxValue);
+	}
     
     return 0;
 }
@@ -476,10 +585,21 @@ void LaunchPlaySequencer::setParameter(VstInt32 index, float value)
 {
     switch (index) {
         case 0: // base note
-            sequencer_->setBaseNote(VstInt32(floor((value * (float) MIDIHelper::kBaseNoteMaxValue) + .5)));
+			sequencer_->setBaseNote(denormalizeValue(value, MIDIHelper::kBaseNoteOffsetMaxValue));
+			break;
         case 1: // scale
-            sequencer_->setScale(MIDIHelper::Scale((uint32_t) floor((value * (float) MIDIHelper::kScaleMaxValue) + .5)));
+			sequencer_->setScale(MIDIHelper::Scale(denormalizeValue(value, MIDIHelper::kScaleMaxValue)));
+			break;
     }
+
+	if(index > 1 && index < 10) { // octave for each channel
+		VstInt32 channelOffset = index - kLaunchPadChannelOffset;
+		VstInt32 maxValue = abs(MIDIHelper::kBaseNoteMinOctave) + abs(MIDIHelper::kBaseNoteMaxOctave);
+		VstInt32 normalizedOctave = denormalizeValue(value, maxValue);
+		VstInt32 octave = normalizedOctave - abs(MIDIHelper::kBaseNoteMinOctave);
+
+		sequencer_->setOctave(channelOffset, octave);
+	}
 }
 
 void LaunchPlaySequencer::setParameterAutomated(VstInt32 index, float value)
@@ -532,67 +652,84 @@ void LaunchPlaySequencer::getParameterDisplay(VstInt32 index, char *text)
             break;
         case 1: // scale
             switch (sequencer_->getScale()) {
-                case 0:
-                    vst_strncpy(text, "Major", kVstMaxParamStrLen);
-                    break;
-                case 1:
-                    vst_strncpy(text, "Minor", kVstMaxParamStrLen);
-                    break;
+				case 0:
+					vst_strncpy(text, "Major", kVstMaxParamStrLen);
+					break;
+				case 1:
+					vst_strncpy(text, "MinorNat", kVstMaxParamStrLen);
+					break;
+				case 2:
+					vst_strncpy(text, "MinorHar", kVstMaxParamStrLen);
+					break;
+				case 3:
+					vst_strncpy(text, "MinMelAsc", kVstMaxParamStrLen);
+					break;
+				case 4:
+					vst_strncpy(text, "MinMelDesc", kVstMaxParamStrLen);
+					break;
+				case 5:
+					vst_strncpy(text, "Pent Major", kVstMaxParamStrLen);
+					break;
+				case 6:
+					vst_strncpy(text, "Pent Minor Nat", kVstMaxParamStrLen);
+					break;
+				case 7:
+					vst_strncpy(text, "Whole Note", kVstMaxParamStrLen);
+					break;
+				case 8:
+					vst_strncpy(text, "Augmented", kVstMaxParamStrLen);
+					break;
+				case 9:
+					vst_strncpy(text, "Prometheus", kVstMaxParamStrLen);
+					break;
+				case 10:
+					vst_strncpy(text, "Blues", kVstMaxParamStrLen);
+					break;
+				case 11:
+					vst_strncpy(text, "Tritone", kVstMaxParamStrLen);
+					break;
             }
             break;
     }
+
+	if(index > 1 && index < 10) { // octave for each channel
+		VstInt32 channelOffset = index - kLaunchPadChannelOffset;
+		std::stringstream ss;
+		ss << sequencer_->getOctave(channelOffset);
+		vst_strncpy(text, ss.str().c_str(), kVstMaxParamStrLen);
+		return;
+	}
 }
 
 void LaunchPlaySequencer::getParameterName(VstInt32 index, char *text)
 {
     switch (index) {
         case 0:
-            vst_strncpy(text, "Base Note", kVstMaxParamStrLen);
+            vst_strncpy(text, "Note", kVstMaxParamStrLen);
             break;
         case 1:
             vst_strncpy(text, "Scale", kVstMaxParamStrLen);
             break;
+	}
+
+	if(index > 1 && index < 10) { // octave for each channel
+		std::stringstream ss;
+		ss << "Octave ";
+		ss << (index-1);
+
+        vst_strncpy(text, ss.str().c_str(), kVstMaxParamStrLen);
+		return;
     }
 }
 
-bool LaunchPlaySequencer::getParameterProperties(VstInt32 index, VstParameterProperties *p)
+VstInt32 LaunchPlaySequencer::getNumMidiInputChannels()
 {
-    switch (index) {
-        case 0: // base note
-            p->displayIndex = 0;
-            vst_strncpy(p->label, "Base Note", kVstMaxParamStrLen);
-            p->flags = kVstParameterSupportsDisplayIndex | kVstParameterUsesIntegerMinMax | kVstParameterCanRamp;
-            p->minInteger = 0;
-            p->maxInteger = 11;
-            p->stepInteger = 1;
-            return true;
-        case 1: // scale
-            p->displayIndex = 1;
-            vst_strncpy(p->label, "Scale", kVstMaxParamStrLen);
-            p->flags = kVstParameterSupportsDisplayIndex | kVstParameterUsesIntegerMinMax | kVstParameterCanRamp;
-            p->minInteger = 0;
-            p->maxInteger = 11;
-            p->stepInteger = 1;
-            return true;
-    }
-    
-    return false;
+	return 1;
 }
 
-void LaunchPlaySequencer::open()
+VstInt32 LaunchPlaySequencer::getNumMidiOutputChannels()
 {
-    sequencer_.reset(new LaunchPadSequencer);
-    sequencer_->init();
-    
-    mq_.reset(new message_queue(open_or_create, kMessageQueueName, 2, sizeof(VstEventsBlock)));
-}
-
-void LaunchPlaySequencer::close()
-{
-    sequencer_.release();
-    
-    mq_->remove(kMessageQueueName);
-    mq_.release();
+	return kLaunchPadMaxChannel;
 }
 
 void LaunchPlaySequencer::processReplacing(float** inputs, float** outputs, VstInt32 sampleFrames)
@@ -629,23 +766,19 @@ void LaunchPlaySequencer::detectTicks(VstTimeInfo *timeInfo,
         ppqPos -= stride;
     
     for(;ppqPos < endPpqPos; ppqPos += stride)
-        onTick(timeInfo->tempo, ppqPos, beatsPerSample, VstInt32((ppqPos - startPpqPos) / beatsPerSample));
+        onTick(timeInfo->tempo, ppqPos, timeInfo->sampleRate, VstInt32((ppqPos - startPpqPos) / beatsPerSample));
 }
 
-void LaunchPlaySequencer::onTick(double tempo, double ppq, double beatsPerSample, VstInt32 sampleOffset)
+void LaunchPlaySequencer::onTick(double tempo, double ppq, double sampleRate, VstInt32 sampleOffset)
 {
     assert(sequencer_.get() != NULL && sampleOffset >= 0);
-    
-    // trick to initialize LaunchPad on first frame
-    if(sampleOffset == 0)
-        sequencer_->sendFeedbackEventsToHost(this);
-    
+
     // move sequencer forward
-    sequencer_->processForward(tempo, ppq, beatsPerSample, sampleOffset);
+    sequencer_->processForward(tempo, ppq, sampleRate, sampleOffset);
     
-    // send feedback events to LaunchPad
+    // send feedback events to Host
     sequencer_->sendFeedbackEventsToHost(this);
     
-    // send generated notes to LaunchPlayEmitter
-    sequencer_->sendMIDIEventsToEmitter(mq_.get());
+    // send generated notes to Host
+	sequencer_->sendMidiEventsToHost(this);
 }

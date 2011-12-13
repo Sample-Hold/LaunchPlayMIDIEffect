@@ -13,6 +13,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{61093A94-E143-4390-B80B-D1D7B11C5F23}</ProjectGuid>
     <RootNamespace>LaunchPlayEmitter</RootNamespace>
+    <ProjectName>LaunchPlayMidiFilter</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -56,7 +57,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_WINDLL;WIN32;LAUNCHPLAY_EMITTER_EXPORT;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WINDLL;WIN32;LAUNCHPLAY_MIDIFILTER_EXPORT;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <Link>
@@ -81,7 +82,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_MBCS;_WINDLL;WIN32;LAUNCHPLAY_EMITTER_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;_WINDLL;WIN32;LAUNCHPLAY_MIDIFILTER_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <Link>
@@ -104,7 +105,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Sources\LaunchPlay.h" />
-    <ClInclude Include="..\..\Sources\LaunchPlayEmitter.h" />
+    <ClInclude Include="..\..\Sources\LaunchPlayMidiFilter.h" />
     <ClInclude Include="..\..\Sources\LaunchPlaySequencer.h" />
     <ClInclude Include="..\..\Sources\MIDIHelpers.h" />
   </ItemGroup>
@@ -116,7 +117,7 @@
     <ClCompile Include="..\..\..\..\UserLibraries\vstsdk2.4\public.sdk\source\vst2.x\audioeffectx.cpp" />
     <ClCompile Include="..\..\..\..\UserLibraries\vstsdk2.4\public.sdk\source\vst2.x\vstplugmain.cpp" />
     <ClCompile Include="..\..\Sources\LaunchPlay.cpp" />
-    <ClCompile Include="..\..\Sources\LaunchPlayEmitter.cpp" />
+    <ClCompile Include="..\..\Sources\LaunchPlayMidiFilter.cpp" />
     <ClCompile Include="..\..\Sources\LaunchPlaySequencer.cpp" />
     <ClCompile Include="..\..\Sources\MIDIHelpers.cpp" />
   </ItemGroup>

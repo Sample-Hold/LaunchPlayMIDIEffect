@@ -12,24 +12,26 @@
 #include "LaunchPlay.h"
 #include "MIDIHelpers.h"
 
-#include <memory>
 #include <vector>
+#include <memory>
 #include <algorithm>
 #include <functional>
-#include <boost/interprocess/ipc/message_queue.hpp>
+#include <boost/utility.hpp>
+#include <boost/smart_ptr.hpp>
 
-#define kStrideQuarter      1
-#define kStrideEight        .5
-#define kStrideSixteenth    .25
+#define kStrideHalf					2
+#define kStrideQuarter				1
+#define kStrideEight				.5
+#define kStrideSixteenth			.25
 
-enum {
-    kLaunchPadWidth     = 8,
-    kLaunchPadHeight    = 8 
-};
+#define kLaunchPadWidth     		8
+#define kLaunchPadHeight    		8
+#define kLaunchPadChannelOffset 	1
+#define kLaunchPadMaxChannel		9
 
 namespace LaunchPlayVST {
 
-    class SequencerBase {
+    class SequencerBase : boost::noncopyable {
     protected:
         virtual size_t midiEventsCount() const = 0;
         virtual size_t feedbackEventsCount() const = 0;
@@ -38,36 +40,47 @@ namespace LaunchPlayVST {
     public:
         virtual ~SequencerBase() = 0;
         virtual void init() = 0;
-        virtual void processForward(double tempo, double ppq, double beatsPerSample, VstInt32 sampleOffset) = 0;
+        virtual void processForward(double tempo, double ppq, double sampleRate, VstInt32 sampleOffset) = 0;
         virtual void processUserEvents(VstEvents *events) = 0;
         virtual void setBaseNote(VstInt32 note) = 0;
         virtual void setScale(MIDIHelper::Scale scale) = 0;
+		virtual void setOctave(VstInt32 channelOffset, VstInt32 octave) = 0;
         virtual VstInt32 getBaseNote() const = 0;
+		virtual VstInt32 getOctave(VstInt32 channelOffset) const = 0;
         virtual MIDIHelper::Scale  getScale() const = 0;
-        
+		
+
         void sendFeedbackEventsToHost(LaunchPlayBase *plugin);
-        void sendMIDIEventsToEmitter(boost::interprocess::message_queue *mq);
+        void sendMidiEventsToHost(LaunchPlayBase *plugin);
     };
     
     enum GridDirection { up, down, left, right };
     
     struct Worker { 
         VstInt32 uniqueID;
+		VstInt32 channel;
         size_t x;
         size_t y;
         GridDirection direction;
+
+		Worker();
     };
     
     typedef std::vector<Worker> WorkerList;
     typedef WorkerList::iterator WorkerListIter;
-    
     typedef std::vector<VstMidiEvent> VstMidiEventList;
+	typedef std::vector<VstDelayedMidiEvent> VstDelayedMidiEventList;
+	typedef VstDelayedMidiEventList::iterator VstDelayedMidiEventListIter;
     
-    class GridSequencer : public SequencerBase, boost::noncopyable {
+    class GridSequencer : public SequencerBase {
         struct EqualLocations : std::binary_function<Worker, Worker, bool> {
             bool operator()(Worker const& a, Worker const& b) const;
         };
-        
+
+		struct EqualChannel : std::binary_function<Worker, VstInt32, bool> {
+			bool operator()(Worker const& worker, VstInt32 channel) const;
+		};
+
         struct MoveForward : std::binary_function<Worker, Worker, void> {
             void operator()(Worker &worker, Worker const& boundaries) const;
         };
@@ -75,13 +88,19 @@ namespace LaunchPlayVST {
         struct HandleCollisions : std::binary_function<Worker, WorkerList, void> {
             void operator()(Worker &worker, WorkerList const& workerList) const;
         };
+
+		struct TestDelayedMidiEvents : std::binary_function<VstDelayedMidiEvent, double, bool> {
+            bool operator()(VstDelayedMidiEvent const& delayedMidiEvent, double ppq) const;
+        };
         
-        void generateNotes(double beatsPerSample, VstInt32 sampleOffset);
-        
+		void generateNotes(double ppq, VstInt32 sampleOffset);
+
         WorkerList workers_;
-        VstMidiEventList notes_;
+        VstMidiEventList midiEvents_;
+		VstDelayedMidiEventList delayedMidiEvents_;
         Worker boundaries_;
         VstInt32 baseNote_;
+		boost::scoped_array<VstInt32> octaves_;
         MIDIHelper::Scale scale_;
     protected:
         size_t midiEventsCount() const;
@@ -90,18 +109,20 @@ namespace LaunchPlayVST {
         size_t countWorkersAtLocation(Worker const& worker);
         bool addWorker(Worker const& worker);
         bool removeWorkers(Worker const& worker);
-        bool removeAllWorkers();
+        bool removeAllWorkers(VstInt32 channel = -1);
         WorkerListIter getWorkersBeginIterator();
         WorkerListIter getWorkersEndIterator();
     public:
         GridSequencer(size_t width, size_t height);
         virtual ~GridSequencer();
         
-        virtual void processForward(double tempo, double ppq, double beatsPerSample, VstInt32 sampleOffset);
+        virtual void processForward(double tempo, double ppq, double sampleRate, VstInt32 sampleOffset);
         
         void setBaseNote(VstInt32 note);
+		void setOctave(VstInt32 channelOffset, VstInt32 octave);
         void setScale(MIDIHelper::Scale scale);
         VstInt32 getBaseNote() const;
+		VstInt32 getOctave(VstInt32 channelOffset) const;
         MIDIHelper::Scale getScale() const;
     };
     
@@ -110,6 +131,7 @@ namespace LaunchPlayVST {
     class LaunchPadSequencer : public GridSequencer {
         VstMidiEventList eventsBuffer_;
         GridDirection currentDirection_;
+		VstInt32 currentChannelOffset_;
         EditMode currentEditMode_;
         bool primaryBufferEnabled_, removeAll_;
         std::auto_ptr<Worker> tempWorker_;
@@ -123,6 +145,7 @@ namespace LaunchPlayVST {
         void showDirections(VstInt32 deltaFrames);
         void showRemoveButton(VstInt32 deltaFrames);
         void showEditMode(VstInt32 deltaFrames);
+		void showActiveChannel(VstInt32 deltaFrames);
         void showTick(double ppq, VstInt32 deltaFrames);
         void swapBuffers(VstInt32 deltaFrames);
     public:
@@ -131,22 +154,21 @@ namespace LaunchPlayVST {
     
         void init();
         void processUserEvents(VstEvents *eventPtr);
-        void processForward(double tempo, double ppq, double beatsPerSample, VstInt32 sampleOffset);
+        void processForward(double tempo, double ppq, double sampleRate, VstInt32 sampleOffset);
     };
 
     class LaunchPlaySequencer : public LaunchPlayBase {
-        std::auto_ptr<SequencerBase> sequencer_;
-        std::auto_ptr<boost::interprocess::message_queue> mq_;
+        boost::shared_ptr<SequencerBase> sequencer_;
     protected: 
-        virtual void detectTicks(VstTimeInfo *timeInfo, 
-                                 VstInt32 sampleFrames, 
-                                 double stride = kStrideEight);
-        virtual void onTick(double tempo, double ppq, double beatsPerSample, VstInt32 sampleOffset);
+        void detectTicks(VstTimeInfo *timeInfo, 
+                         VstInt32 sampleFrames, 
+                         double stride = kStrideEight);
+        void onTick(double tempo, double ppq, double sampleRate, VstInt32 sampleOffset);
     public:
         LaunchPlaySequencer(audioMasterCallback audioMaster);
         ~LaunchPlaySequencer();
         
-        VstPlugCategory getPlugCategory() { return kPlugCategSynth; }
+		VstPlugCategory getPlugCategory() { return kPlugCategSynth; }
         bool getEffectName(char *name);
         VstInt32 canDo(char *text);
 	    
@@ -155,7 +177,9 @@ namespace LaunchPlayVST {
         void setParameterAutomated(VstInt32 index, float value);
         void getParameterName(VstInt32 index, char *text);
         void getParameterDisplay(VstInt32 index, char *text);
-        bool getParameterProperties(VstInt32 index, VstParameterProperties *p);
+
+		VstInt32 getNumMidiInputChannels();
+		VstInt32 getNumMidiOutputChannels();
         
         void open();
         void close();

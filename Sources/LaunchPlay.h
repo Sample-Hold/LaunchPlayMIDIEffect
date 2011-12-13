@@ -15,31 +15,33 @@
 #endif
 
 #include <assert.h>
+#include <stdio.h>
+#include <sstream>
 #include <audioeffectx.h>
-#include <boost/utility.hpp>
 
 #define kProductString      "LaunchPlay sequencer for LaunchPad"
 #define kVendorString       "Fred G for sample-hold.com"
 #define kSequencerName      "LaunchPlaySequencer"
-#define kEmitterName        "LaunchPlayEmitter"
-#define kMessageQueueName   "LaunchPlayMessageQueue"
-#define kMessageQueueSize   32
+#define kMidiFilterName     "LaunchPlayMidiFilter"
 #define kVendorVersion      1000
 #define kSeqUniqueID        CCONST('f','9', 's', 'q')
 #define kEmUniqueID         CCONST('f','9', 'e', 'm')
 
 namespace LaunchPlayVST {
     
-    class LaunchPlayBase : public AudioEffectX, boost::noncopyable {
-
+	class LaunchPlayBase : public AudioEffectX {
+	protected:
+		VstInt32 denormalizeValue(float value, VstInt32 max);
+		float normalizeValue(VstInt32 value, VstInt32 max);
     public:
         LaunchPlayBase(audioMasterCallback audioMaster, 
                        VstInt32 numPrograms, 
                        VstInt32 numParams);
+		virtual ~LaunchPlayBase();
         
-        virtual bool getVendorString(char *text);
-        virtual bool getProductString(char *text);
-        virtual VstInt32 getVendorVersion();
+        bool getVendorString(char *text);
+        bool getProductString(char *text);
+        VstInt32 getVendorVersion();
     };
     
 } // } namespace LaunchPlayVST

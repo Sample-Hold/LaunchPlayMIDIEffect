@@ -103,7 +103,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Sources\LaunchPlay.h" />
-    <ClInclude Include="..\..\Sources\LaunchPlayEmitter.h" />
+    <ClInclude Include="..\..\Sources\LaunchPlayMidiFilter.h" />
     <ClInclude Include="..\..\Sources\LaunchPlaySequencer.h" />
     <ClInclude Include="..\..\Sources\MIDIHelpers.h" />
   </ItemGroup>
@@ -115,7 +115,7 @@
     <ClCompile Include="..\..\..\..\UserLibraries\vstsdk2.4\public.sdk\source\vst2.x\audioeffectx.cpp" />
     <ClCompile Include="..\..\..\..\UserLibraries\vstsdk2.4\public.sdk\source\vst2.x\vstplugmain.cpp" />
     <ClCompile Include="..\..\Sources\LaunchPlay.cpp" />
-    <ClCompile Include="..\..\Sources\LaunchPlayEmitter.cpp" />
+    <ClCompile Include="..\..\Sources\LaunchPlayMidiFilter.cpp" />
     <ClCompile Include="..\..\Sources\LaunchPlaySequencer.cpp" />
     <ClCompile Include="..\..\Sources\MIDIHelpers.cpp" />
   </ItemGroup>
