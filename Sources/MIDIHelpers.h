@@ -19,7 +19,6 @@
 #endif
 
 #define SIZEOFMIDIEVENT         sizeof(VstMidiEvent) - 2 * sizeof(VstInt32)
-#define kVstEventsBlockSize     32
 
 enum {
     kMIDILBitMask               = 0xF0,
@@ -32,6 +31,7 @@ enum {
     kMIDISecondaryBufferAdress  = 0x34,
     kMIDIVelocityMin            = 0,
     kMIDIVelocityAverage        = 64,
+	kMIDIVelocityGood	        = 100,
     kMIDIVelocityMax            = 127,
     kMIDIMiddleCNoteNumber      = 60
 };
@@ -39,40 +39,83 @@ enum {
 namespace LaunchPlayVST {
     
     struct MIDIMessage {
-        unsigned char code, arg1, arg2;
-        MIDIMessage(unsigned char c, unsigned char a1, unsigned char a2);
+        char code, arg1, arg2;
+        MIDIMessage(char c, char a1, char a2);
         MIDIMessage(VstMidiEvent const* event);
     };
 
     struct VstEventsBlock {
+		enum { kVstEventsBlockSize = 200 };
+
         VstInt32 numEvents;
         VstIntPtr reserved;
-        VstEvent* events[kVstEventsBlockSize]; // crap; thanks a lot Steinberg for this
+        VstEvent* events[kVstEventsBlockSize]; // crap, thanks Steinberg for this
         
         void allocate(size_t const size);
         void deallocate();
         static void convertMidiEvent(VstMidiEvent const& midiEvent, VstEvent *event);
+		static void filterMidiEvents(VstEvents *events, char channelOffset);
         static void debugVstEvents(VstEvents const* events, char midiEventToWatch = 0);
     };
-    
+
+	struct VstDelayedMidiEvent : public VstMidiEvent {
+		double ppqStart;
+
+		VstDelayedMidiEvent(VstMidiEvent const& event, double ppq);
+		VstMidiEvent toMidiEvent(VstInt32 deltaFrames);
+	};
+
     class MIDIHelper {
-        static const int majorScaleOffsets[];
-        static const int minorScaleOffsets[];
+        static const int logScaleMajorOffsets[];
+        static const int logScaleMinorNatOffsets[];
+		static const int logScaleMinorHarOffsets[];
+		static const int logScaleMinorMelAscOffsets[];
+		static const int logScaleMinorMelDescOffsets[];
+		static const int pentScaleMajorOffsets[];
+		static const int pentScaleMinorNatOffsets[];
+		static const int hexScaleWholeOffsets[];
+		static const int hexScaleAugOffsets[];
+		static const int hexScalePromOffsets[];
+		static const int hexScaleBluesOffsets[];
+		static const int hexScaleTritoneOffsets[];
     public:
-        enum Scale { majorScale, minorScale };
-        
-        enum {
-            kBaseNoteMaxValue = 11,
-            kScaleMaxValue = 1,
+		enum {
+            kBaseNoteOffsetMaxValue = 11,
+			kBaseNoteCount = 12,
+			kBaseNoteMinOctave = -4,
+			kBaseNoteMaxOctave = 3,
+			kNoteOffsetMaxValue = 7,
+			kChannelOffsetMaxValue = 15,
+			kMaxChannels = 16,
+            kScaleMaxValue = 11
         };
-        
+
+        enum Scale { 
+			logScaleMajor, 
+			logScaleMinorNat,
+			logScaleMinorHar, 
+			logScaleMinorMelAsc,
+			logScaleMinorMelDesc,
+			pentScaleMajor,
+			pentScaleMinorNat,
+			hexScaleWhole,
+			hexScaleAug,
+			hexScaleProm,
+			hexScaleBlues,
+			hexScaleTritone
+		};
+
         static VstMidiEvent createNoteOn(VstInt32 baseNoteOffset, 
+										VstInt32 octave,
                                        Scale scale, 
-                                       VstInt32 offset, 
+                                       VstInt32 noteOffset,
+									   VstInt32 channelOffset,
                                        VstInt32 deltaFrames);
         static VstMidiEvent createNoteOff(VstInt32 baseNoteOffset, 
+										  VstInt32 octave,
                                           Scale scale, 
-                                          VstInt32 offset, 
+                                          VstInt32 noteOffset, 
+										  VstInt32 channelOffset,
                                           VstInt32 deltaFrames);
     };
     
@@ -87,17 +130,22 @@ namespace LaunchPlayVST {
                                              bool clearBit, 
                                              VstInt32 deltaFrames);
     public:
-        enum LaunchPadLayout { xYLayout = 1, drumRackLayout = 2 };
+        enum LaunchPadLayout { 
+			xYLayout = 1,
+			drumRackLayout = 2 
+		};
         
-        enum LaunchPadLEDColor { off = 0, 
+        enum LaunchPadLEDColor { 
+			off = 0, 
             lightRed = 1, 
             fullRed = 3, 
             lowAmber = 17,
             fullAmber = 51, 
             fullYellow = 50, 
             lowGreen = 16, 
-            fullGreen = 48 };
-        
+            fullGreen = 48 
+		};
+
         // input messages
         static bool isValidMessage(VstMidiEvent const* event);
         static LaunchPadUserInput readMessage(VstMidiEvent const* event, 
@@ -117,7 +165,11 @@ namespace LaunchPlayVST {
                                                     size_t y,
                                                     LaunchPadLEDColor color,
                                                     VstInt32 deltaFrames);
-        
+
+		static VstMidiEvent createRightButtonMessage(VstInt32 number,
+                                                    LaunchPadLEDColor color,
+                                                    VstInt32 deltaFrames);
+
         static VstMidiEvent createSwapBuffersMessage(bool primaryBuffer, 
                                                      VstInt32 deltaFrames);
     };
