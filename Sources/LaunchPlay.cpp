@@ -44,7 +44,7 @@ VstInt32 LaunchPlayBase::getVendorVersion()
 }
 
 VstInt32 LaunchPlayBase::denormalizeValue(float value, VstInt32 max) {
-	VstInt32 denormalizedValue(floor((value * max) + .5));
+	VstInt32 denormalizedValue = (VstInt32) floor((value * max) + .5);
 	return denormalizedValue;
 }
 

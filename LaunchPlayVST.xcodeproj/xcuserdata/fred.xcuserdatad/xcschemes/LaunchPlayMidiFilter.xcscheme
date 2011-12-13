@@ -15,7 +15,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "B62EC424149021D9002EF0E8"
                BuildableName = "LaunchPlayEmitter.vst"
-               BlueprintName = "LaunchPlayEmitter"
+               BlueprintName = "LaunchPlayMidiFilter"
                ReferencedContainer = "container:LaunchPlayVST.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
