@@ -21,13 +21,13 @@
     <ClInclude Include="..\..\Sources\LaunchPlay.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Sources\LaunchPlayEmitter.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Sources\LaunchPlaySequencer.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Sources\MIDIHelpers.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\LaunchPlayMidiFilter.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
   </ItemGroup>
@@ -38,9 +38,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Sources\LaunchPlay.cpp">
-      <Filter>Fichiers sources</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Sources\LaunchPlayEmitter.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Sources\LaunchPlaySequencer.cpp">
@@ -57,6 +54,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\UserLibraries\vstsdk2.4\public.sdk\source\vst2.x\vstplugmain.cpp">
       <Filter>Fichiers sources\Imported Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Sources\LaunchPlayMidiFilter.cpp">
+      <Filter>Fichiers sources</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
