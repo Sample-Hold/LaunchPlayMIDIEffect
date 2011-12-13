@@ -87,7 +87,6 @@
 		B62EC42014901F5D002EF0E8 /* LaunchPlaySequencer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LaunchPlaySequencer.cpp; sourceTree = "<group>"; };
 		B62EC42214901F6F002EF0E8 /* LaunchPlayEmitter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LaunchPlayEmitter.cpp; sourceTree = "<group>"; };
 		B62EC440149021D9002EF0E8 /* LaunchPlayEmitter.vst */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LaunchPlayEmitter.vst; sourceTree = BUILT_PRODUCTS_DIR; };
-		B62EC441149021DA002EF0E8 /* LaunchPlaySequencer copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "LaunchPlaySequencer copy-Info.plist"; path = "/Users/fred/Documents/XCode/Plugins/LaunchPlayVST/LaunchPlaySequencer copy-Info.plist"; sourceTree = "<absolute>"; };
 		B6B2E9F81490550D0045EF25 /* LaunchPlay-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LaunchPlay-Prefix.pch"; sourceTree = "<group>"; };
 		B6D35B11148AA30500CE3830 /* LaunchPlay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LaunchPlay.h; sourceTree = "<group>"; };
 		B6D35B13148AA31500CE3830 /* LaunchPlay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LaunchPlay.cpp; sourceTree = "<group>"; };
@@ -115,7 +114,6 @@
 				B6D35B01148AA1B100CE3830 /* Sources */,
 				B6D35B32148AAF0D00CE3830 /* Frameworks */,
 				B6D35AF8148A9D4900CE3830 /* Products */,
-				B62EC441149021DA002EF0E8 /* LaunchPlaySequencer copy-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
