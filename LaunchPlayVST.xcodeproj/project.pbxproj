@@ -23,11 +23,9 @@
 		B62EC435149021D9002EF0E8 /* vstplugmain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6E46CD0148C563700B27E81 /* vstplugmain.cpp */; };
 		B62EC437149021D9002EF0E8 /* LaunchPlaySequencer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B62EC42014901F5D002EF0E8 /* LaunchPlaySequencer.cpp */; };
 		B62EC43A149021D9002EF0E8 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B6D35B51148AB03700CE3830 /* InfoPlist.strings */; };
-		B62EC444149022B5002EF0E8 /* LaunchPlayMidiFilter.vst in CopyFiles */ = {isa = PBXBuildFile; fileRef = B62EC440149021D9002EF0E8 /* LaunchPlayMidiFilter.vst */; };
 		B6B2E9F91490550D0045EF25 /* LaunchPlay-Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = B6B2E9F81490550D0045EF25 /* LaunchPlay-Prefix.pch */; };
 		B6D35B43148AAF3900CE3830 /* LaunchPlay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6D35B13148AA31500CE3830 /* LaunchPlay.cpp */; };
 		B6D35B53148AB03700CE3830 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B6D35B51148AB03700CE3830 /* InfoPlist.strings */; };
-		B6D35B6C148AB9CD00CE3830 /* LaunchPlaySequencer.vst in CopyFiles */ = {isa = PBXBuildFile; fileRef = B6D35B31148AAF0D00CE3830 /* LaunchPlaySequencer.vst */; };
 		B6E46CD1148C563700B27E81 /* audioeffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6E46CCC148C563700B27E81 /* audioeffect.cpp */; };
 		B6E46CD2148C563700B27E81 /* audioeffectx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6E46CCE148C563700B27E81 /* audioeffectx.cpp */; };
 		B6E46CD3148C563700B27E81 /* vstplugmain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6E46CD0148C563700B27E81 /* vstplugmain.cpp */; };
@@ -47,7 +45,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		B62EC44214902202002EF0E8 /* PBXContainerItemProxy */ = {
+		B66D956C1499398300230B20 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = B6D35AEE148A9D4900CE3830 /* Project object */;
 			proxyType = 1;
@@ -55,29 +53,6 @@
 			remoteInfo = LaunchPlaySequencer;
 		};
 /* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		B62EC43B149021D9002EF0E8 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "$(USER_LIBRARY_DIR)/Audio/Plug-Ins/VST";
-			dstSubfolderSpec = 0;
-			files = (
-				B62EC444149022B5002EF0E8 /* LaunchPlayMidiFilter.vst in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B6D35B6B148AB98A00CE3830 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "$(USER_LIBRARY_DIR)/Audio/Plug-Ins/VST";
-			dstSubfolderSpec = 0;
-			files = (
-				B6D35B6C148AB9CD00CE3830 /* LaunchPlaySequencer.vst in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		B62EC41B14901ED3002EF0E8 /* LaunchPlaySequencer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LaunchPlaySequencer.h; sourceTree = "<group>"; };
@@ -228,12 +203,11 @@
 				B62EC425149021D9002EF0E8 /* Headers */,
 				B62EC431149021D9002EF0E8 /* Sources */,
 				B62EC439149021D9002EF0E8 /* Resources */,
-				B62EC43B149021D9002EF0E8 /* CopyFiles */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				B62EC44314902202002EF0E8 /* PBXTargetDependency */,
+				B66D956D1499398300230B20 /* PBXTargetDependency */,
 			);
 			name = LaunchPlayMidiFilter;
 			productName = LaunchPad;
@@ -247,7 +221,6 @@
 				B6E46CD7148C572500B27E81 /* Headers */,
 				B6D35B2D148AAF0D00CE3830 /* Sources */,
 				B6D35B2F148AAF0D00CE3830 /* Resources */,
-				B6D35B6B148AB98A00CE3830 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -334,10 +307,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		B62EC44314902202002EF0E8 /* PBXTargetDependency */ = {
+		B66D956D1499398300230B20 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = B6D35B30148AAF0D00CE3830 /* LaunchPlaySequencer */;
-			targetProxy = B62EC44214902202002EF0E8 /* PBXContainerItemProxy */;
+			targetProxy = B66D956C1499398300230B20 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
