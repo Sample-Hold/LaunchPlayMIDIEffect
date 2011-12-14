@@ -12,6 +12,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <pluginterfaces/vst2.x/aeffectx.h>
+#include <boost/smart_ptr.hpp>
 
 #if defined (WIN32)
 	#define _CRT_SECURE_NO_WARNINGS 1
@@ -27,13 +28,13 @@ enum {
     kMIDINoteOffEvent           = 0x80,
     kMIDINoteOnEvent            = 0x90,
     kMIDIControllerChangeEvent  = 0xB0,
-    kMIDIPrimaryBufferAdress    = 0x31,
-    kMIDISecondaryBufferAdress  = 0x34,
+    kMIDIPrimaryBufferCode	    = 0x34,
+    kMIDISecondaryBufferCode	= 0x31,
     kMIDIVelocityMin            = 0,
-    kMIDIVelocityAverage        = 64,
-	kMIDIVelocityGood	        = 100,
-    kMIDIVelocityMax            = 127,
-    kMIDIMiddleCNoteNumber      = 60
+    kMIDIVelocityAverage        = 0x40,
+	kMIDIVelocityGood	        = 0x64,
+    kMIDIVelocityMax            = 0x7F,
+    kMIDIMiddleCNoteNumber      = 0x3C
 };
 
 namespace LaunchPlayVST {
@@ -53,17 +54,21 @@ namespace LaunchPlayVST {
         
         void allocate(size_t const size);
         void deallocate();
-        static void convertMidiEvent(VstMidiEvent const& midiEvent, VstEvent *event);
+        static void convertMidiEvent(VstMidiEvent *source, VstEvent *event);
 		static void filterMidiEvents(VstEvents *events, char channelOffset);
         static void debugVstEvents(VstEvents const* events, char midiEventToWatch = 0);
     };
 
+	typedef boost::shared_ptr<VstMidiEvent> VstMidiEventPtr;
+
 	struct VstDelayedMidiEvent : public VstMidiEvent {
 		double ppqStart;
 
-		VstDelayedMidiEvent(VstMidiEvent const& event, double ppq);
-		VstMidiEvent toMidiEvent(VstInt32 deltaFrames);
+		VstDelayedMidiEvent(VstMidiEventPtr const event, double ppq);
+		VstMidiEventPtr toMidiEvent(VstInt32 frames);
 	};
+
+	typedef boost::shared_ptr<VstDelayedMidiEvent> VstDelayedMidiEventPtr;
 
     class MIDIHelper {
         static const int logScaleMajorOffsets[];
@@ -80,14 +85,12 @@ namespace LaunchPlayVST {
 		static const int hexScaleTritoneOffsets[];
     public:
 		enum {
-            kBaseNoteOffsetMaxValue = 11,
+			kScaleMaxValue = 11,
 			kBaseNoteCount = 12,
-			kBaseNoteMinOctave = -4,
+			kBaseNoteMinOctave = -3,
 			kBaseNoteMaxOctave = 3,
 			kNoteOffsetMaxValue = 7,
-			kChannelOffsetMaxValue = 15,
-			kMaxChannels = 16,
-            kScaleMaxValue = 11
+			kMaxChannels = 16
         };
 
         enum Scale { 
@@ -105,18 +108,18 @@ namespace LaunchPlayVST {
 			hexScaleTritone
 		};
 
-        static VstMidiEvent createNoteOn(VstInt32 baseNoteOffset, 
+        static VstMidiEventPtr createNoteOn(VstInt32 baseNoteOffset, 
 										VstInt32 octave,
-                                       Scale scale, 
-                                       VstInt32 noteOffset,
-									   VstInt32 channelOffset,
-                                       VstInt32 deltaFrames);
-        static VstMidiEvent createNoteOff(VstInt32 baseNoteOffset, 
-										  VstInt32 octave,
-                                          Scale scale, 
-                                          VstInt32 noteOffset, 
-										  VstInt32 channelOffset,
-                                          VstInt32 deltaFrames);
+										Scale scale, 
+										VstInt32 noteOffset, 
+										VstInt32 deltaFrames,
+										char channelOffset = 0);
+        static VstMidiEventPtr createNoteOff(VstInt32 baseNoteOffset, 
+										VstInt32 octave,
+										Scale scale, 
+										VstInt32 noteOffset, 
+										VstInt32 deltaFrames,
+										char channelOffset = 0);
     };
     
     struct LaunchPadUserInput {
@@ -125,52 +128,59 @@ namespace LaunchPlayVST {
     };
     
     class LaunchPadHelper {
-        static VstMidiEvent createRawMessage(MIDIMessage const& message, 
-                                             bool copyBit,
-                                             bool clearBit, 
-                                             VstInt32 deltaFrames);
+        static VstMidiEventPtr createRawMessage(MIDIMessage const& message, 												
+												VstInt32 deltaFrames,
+												char flags = 0);
     public:
         enum LaunchPadLayout { 
 			xYLayout = 1,
 			drumRackLayout = 2 
 		};
-        
+
+		enum LaunchPadFlags { 
+			copyBothBuffers = 4,
+			clearOtherBuffer = 8
+		};
+
         enum LaunchPadLEDColor { 
 			off = 0, 
-            lightRed = 1, 
-            fullRed = 3, 
-            lowAmber = 17,
-            fullAmber = 51, 
-            fullYellow = 50, 
-            lowGreen = 16, 
-            fullGreen = 48 
+            lowRed = 13, 
+            fullRed = 15, 
+            lowAmber = 29,
+            fullAmber = 63, 
+            fullYellow = 62, 
+            lowGreen = 28, 
+            fullGreen = 60 
 		};
 
         // input messages
-        static bool isValidMessage(VstMidiEvent const* event);
-        static LaunchPadUserInput readMessage(VstMidiEvent const* event, 
+        static bool isValidMessage(MIDIMessage const& message);
+        static LaunchPadUserInput readMessage(MIDIMessage const& message, 
                                               LaunchPadLayout layout);
         
         // output messages
-        static VstMidiEvent createResetMessage(VstInt32 deltaFrames);
+        static VstMidiEventPtr createResetMessage(VstInt32 deltaFrames);
 
-        static VstMidiEvent createSetLayoutMessage(LaunchPadLayout layout, 
+        static VstMidiEventPtr createSetLayoutMessage(LaunchPadLayout layout, 
                                                    VstInt32 deltaFrames);
         
-        static VstMidiEvent createTopButtonMessage(VstInt32 number, 
+        static VstMidiEventPtr createTopButtonMessage(VstInt32 number, 
                                                    LaunchPadLEDColor color,
-                                                   VstInt32 deltaFrames); 
+                                                   VstInt32 deltaFrames, 
+												   char flags = 0); 
         
-        static VstMidiEvent createGridButtonMessage(size_t x, 
+        static VstMidiEventPtr createGridButtonMessage(size_t x, 
                                                     size_t y,
                                                     LaunchPadLEDColor color,
-                                                    VstInt32 deltaFrames);
+                                                    VstInt32 deltaFrames,
+													char flags = 0);
 
-		static VstMidiEvent createRightButtonMessage(VstInt32 number,
+		static VstMidiEventPtr createRightButtonMessage(VstInt32 number,
                                                     LaunchPadLEDColor color,
-                                                    VstInt32 deltaFrames);
+                                                    VstInt32 deltaFrames,
+													char flags = 0);
 
-        static VstMidiEvent createSwapBuffersMessage(bool primaryBuffer, 
+        static VstMidiEventPtr createSwapBuffersMessage(bool primaryBuffer, 
                                                      VstInt32 deltaFrames);
     };
     

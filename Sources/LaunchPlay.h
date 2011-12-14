@@ -31,8 +31,8 @@ namespace LaunchPlayVST {
     
 	class LaunchPlayBase : public AudioEffectX {
 	protected:
-		VstInt32 denormalizeValue(float value, VstInt32 max);
-		float normalizeValue(VstInt32 value, VstInt32 max);
+		static VstInt32 denormalizeValue(float const value, VstInt32 const max);
+		static float normalizeValue(VstInt32 const value, VstInt32 const max);
     public:
         LaunchPlayBase(audioMasterCallback audioMaster, 
                        VstInt32 numPrograms, 
