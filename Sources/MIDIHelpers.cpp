@@ -15,9 +15,9 @@ MIDIMessage::MIDIMessage(VstMidiEvent const* event)
 {
     assert(event != NULL);
      
-    code = event ? event->midiData[0] : 0;
-    arg1 = event ? event->midiData[1] : 0;
-    arg2 = event ? event->midiData[2] : 0;
+    code = event->midiData[0];
+    arg1 = event->midiData[1];
+    arg2 = event->midiData[2];
 }
 
 MIDIMessage::MIDIMessage(char c, char a1, char a2)
@@ -45,22 +45,22 @@ void VstEventsBlock::deallocate()
     this->numEvents = 0;
 }
 
-void VstEventsBlock::convertMidiEvent(VstMidiEvent const& midiEvent, VstEvent *event)
+void VstEventsBlock::convertMidiEvent(VstMidiEvent *source, VstEvent *event)
 {
-    assert(event != NULL);
+    assert(source != NULL && event != NULL);
     
     VstMidiEvent *dest = (VstMidiEvent*) event;
     
-    dest->type = midiEvent.type;
-    dest->flags = midiEvent.flags;
-    dest->byteSize = midiEvent.byteSize;
-    dest->deltaFrames = midiEvent.deltaFrames;
-    dest->noteLength = midiEvent.noteLength;
-    dest->noteOffset = midiEvent.noteOffset;
-    dest->noteOffVelocity = midiEvent.noteOffVelocity;
-    dest->detune = midiEvent.detune;
+    dest->type = source->type;
+    dest->flags = source->flags;
+    dest->byteSize = source->byteSize;
+    dest->deltaFrames = source->deltaFrames;
+    dest->noteLength = source->noteLength;
+    dest->noteOffset = source->noteOffset;
+    dest->noteOffVelocity = source->noteOffVelocity;
+    dest->detune = source->detune;
     
-	memcpy(dest->midiData, midiEvent.midiData, sizeof(char)*4);
+	memcpy(dest->midiData, source->midiData, sizeof(char)*4);
 }
 
 void VstEventsBlock::filterMidiEvents(VstEvents *events, char channelOffset)
@@ -74,9 +74,7 @@ void VstEventsBlock::filterMidiEvents(VstEvents *events, char channelOffset)
 			continue;
 		
 		VstMidiEvent *midiEvent = (VstMidiEvent*) event;
-		MIDIMessage message(midiEvent);
-
-		char eventChannel = message.code & kMIDIRBitMask;
+		char eventChannel = midiEvent->midiData[0] & kMIDIRBitMask;
 
 		if(eventChannel != channelOffset) // mute midi event
 			memset(midiEvent->midiData, 0, 4);
@@ -110,36 +108,37 @@ void VstEventsBlock::debugVstEvents(VstEvents const* events, char midiEventToWat
 }
 
 #pragma mark VstDelayedMidiEvent
-VstDelayedMidiEvent::VstDelayedMidiEvent(VstMidiEvent const& event, double ppq)
+VstDelayedMidiEvent::VstDelayedMidiEvent(VstMidiEventPtr const event, double ppq)
 {
-	type = event.type;
-	byteSize = event.byteSize;
-	flags = event.flags;
-	noteLength = event.noteLength;
-	noteOffset = event.noteOffset;
-	detune = event.detune;
-	noteOffVelocity = event.noteOffVelocity;
+	assert(event != NULL);
 
-	memcpy(midiData, event.midiData, sizeof(char)*4);
+	type = event->type;
+	byteSize = event->byteSize;
+	flags = event->flags;
+	noteLength = event->noteLength;
+	noteOffset = event->noteOffset;
+	detune = event->detune;
+	noteOffVelocity = event->noteOffVelocity;
+
+	memcpy(midiData, event->midiData, sizeof(char)*4);
 	ppqStart = ppq;
 }
 
-VstMidiEvent VstDelayedMidiEvent::toMidiEvent(VstInt32 deltaFrames)
+VstMidiEventPtr VstDelayedMidiEvent::toMidiEvent(VstInt32 frames)
 {
-	VstMidiEvent event;
+	VstMidiEventPtr midiEvent(new VstMidiEvent); // create shared_ptr copy
 
-	event.type = type;
-	event.byteSize = byteSize;
-	event.deltaFrames = deltaFrames;
-	event.flags = flags;
-	event.noteLength = noteLength;
-	event.noteOffset = noteOffset;
-	event.detune = detune;
-	event.noteOffVelocity = noteOffVelocity;
+	midiEvent->type = type;
+	midiEvent->byteSize = byteSize;
+	midiEvent->flags = flags;
+	midiEvent->noteLength = noteLength;
+	midiEvent->noteOffset = noteOffset;
+	midiEvent->detune = detune;
+	midiEvent->noteOffVelocity = noteOffVelocity;
+	midiEvent->deltaFrames = frames;
+	memcpy(midiEvent->midiData, midiData, sizeof(char)*4);
 
-	memcpy(event.midiData, midiData, sizeof(char)*4);
-
-	return event;
+	return midiEvent;
 }
 
 #pragma mark MIDIHelper
@@ -156,24 +155,24 @@ const int MIDIHelper::hexScalePromOffsets[]			= {0, 2, 4, 6, 9, 10, 12, 14};
 const int MIDIHelper::hexScaleBluesOffsets[]		= {0, 3, 5, 6, 7, 10, 12, 15}; 
 const int MIDIHelper::hexScaleTritoneOffsets[]		= {0, 1, 4, 6, 7, 10, 12, 13};
 
-VstMidiEvent MIDIHelper::createNoteOn(VstInt32 baseNoteOffset, 
+VstMidiEventPtr MIDIHelper::createNoteOn(VstInt32 baseNoteOffset, 
 									  VstInt32 octave,
                                       Scale scale, 
                                       VstInt32 noteOffset, 
-									  VstInt32 channelOffset,
-                                      VstInt32 deltaFrames)
+                                      VstInt32 deltaFrames,
+									  char channelOffset)
 {
     assert(baseNoteOffset >= 0 && 
-		baseNoteOffset <= kBaseNoteOffsetMaxValue &&
+		baseNoteOffset < kBaseNoteCount &&
 		octave >= kBaseNoteMinOctave &&
 		octave <= kBaseNoteMaxOctave &&
 		noteOffset >= 0 && 
 		noteOffset <= kNoteOffsetMaxValue && 
 		channelOffset >= 0 && 
-		channelOffset <= kChannelOffsetMaxValue);
+		channelOffset < kMaxChannels);
     
-    VstMidiEvent midiEvent;
-    VstInt32 note(kMIDIMiddleCNoteNumber + baseNoteOffset);
+    VstMidiEventPtr midiEvent(new VstMidiEvent);
+    char note(kMIDIMiddleCNoteNumber + baseNoteOffset);
     
 	note += octave*kBaseNoteCount;
 
@@ -216,56 +215,49 @@ VstMidiEvent MIDIHelper::createNoteOn(VstInt32 baseNoteOffset,
             break;
     }
 
-    midiEvent.type = kVstMidiType;
-    midiEvent.byteSize = SIZEOFMIDIEVENT;
-    midiEvent.deltaFrames = deltaFrames;
-    midiEvent.flags = kVstMidiEventIsRealtime;
-    midiEvent.midiData[0] = (char) kMIDINoteOnEvent + channelOffset;
-    midiEvent.midiData[1] = (char) note;
-    midiEvent.midiData[2] = (char) kMIDIVelocityGood;
-    midiEvent.noteLength = (midiEvent.noteOffset = (midiEvent.noteOffVelocity = (midiEvent.detune = 0)));
+    midiEvent->type = kVstMidiType;
+    midiEvent->byteSize = SIZEOFMIDIEVENT;
+    midiEvent->deltaFrames = deltaFrames;
+    midiEvent->flags = 0;
+    midiEvent->midiData[0] = (char) kMIDINoteOnEvent | channelOffset;
+    midiEvent->midiData[1] = note;
+    midiEvent->midiData[2] = (char) kMIDIVelocityGood;
+    midiEvent->noteLength = (midiEvent->noteOffset = (midiEvent->noteOffVelocity = (midiEvent->detune = 0)));
 
     return midiEvent;
 }
 
-VstMidiEvent MIDIHelper::createNoteOff(VstInt32 baseNoteOffset,
-									VstInt32 octave,
-                                    Scale scale, 
-                                    VstInt32 noteOffset, 
-									VstInt32 channelOffset,
-                                    VstInt32 deltaFrames)
+VstMidiEventPtr MIDIHelper::createNoteOff(VstInt32 baseNoteOffset, 
+										VstInt32 octave,
+										Scale scale, 
+										VstInt32 noteOffset, 
+										VstInt32 deltaFrames,
+										char channelOffset)
 {
     
-     VstMidiEvent midiEvent = createNoteOn(baseNoteOffset, 
+     VstMidiEventPtr midiEvent = createNoteOn(baseNoteOffset, 
 									       octave,
                                            scale, 
                                            noteOffset, 
-										   channelOffset,
-                                           deltaFrames);
+										   deltaFrames,
+										   channelOffset);
     
-    midiEvent.midiData[0] = (char) kMIDINoteOffEvent + channelOffset;
-    midiEvent.midiData[2] = (char) kMIDIVelocityMin;
+    midiEvent->midiData[0] = (char) kMIDINoteOffEvent | channelOffset;
+    midiEvent->midiData[2] = (char) kMIDIVelocityMin;
     return midiEvent;
 }
 
 #pragma mark LaunchPadHelper
-bool LaunchPadHelper::isValidMessage(VstMidiEvent const* event)
+bool LaunchPadHelper::isValidMessage(MIDIMessage const& message)
 {
-    assert(event != NULL);
-    
-    MIDIMessage message(event);
-    
     return (message.code & char(kMIDILBitMask)) == char(kMIDINoteOnEvent) ||
            (message.code & char(kMIDILBitMask)) == char(kMIDINoteOffEvent) ||
            (message.code & char(kMIDILBitMask)) == char(kMIDIControllerChangeEvent);
 }
 
-LaunchPadUserInput LaunchPadHelper::readMessage(VstMidiEvent const* event, 
+LaunchPadUserInput LaunchPadHelper::readMessage(MIDIMessage const& message, 
                                                 LaunchPadLayout layout)
 {
-    assert(event != NULL);
-    
-    MIDIMessage message(event);
     LaunchPadUserInput userInput;
     
     userInput.btnPressed = (message.arg2 == kMIDIVelocityMax);
@@ -317,102 +309,86 @@ LaunchPadUserInput LaunchPadHelper::readMessage(VstMidiEvent const* event,
     return userInput;
 }
 
-VstMidiEvent LaunchPadHelper::createRawMessage(MIDIMessage const& message, 
-                                               bool copyBit,
-                                               bool clearBit, 
-                                               VstInt32 deltaFrames)
+VstMidiEventPtr LaunchPadHelper::createRawMessage(MIDIMessage const& message, 												
+												VstInt32 deltaFrames,
+												char flags)
 {
-    VstMidiEvent midiEvent;
+    VstMidiEventPtr midiEvent(new VstMidiEvent);
     
-    midiEvent.type = kVstMidiType;
-    midiEvent.byteSize = SIZEOFMIDIEVENT;
-    midiEvent.deltaFrames = deltaFrames;
-    midiEvent.flags = kVstMidiEventIsRealtime;
-    midiEvent.midiData[0] = message.code;
-    midiEvent.midiData[1] = message.arg1;
-    midiEvent.midiData[2] = message.arg2;
-	midiEvent.midiData[3] = 0;
-    midiEvent.noteLength = (midiEvent.noteOffset = (midiEvent.noteOffVelocity = (midiEvent.detune = 0)));
-    
-    if(copyBit && message.arg2 != 0)
-        midiEvent.midiData[2] += 4;
-    
-    if(clearBit && message.arg2 != 0)
-        midiEvent.midiData[2] += 8;
+    midiEvent->type = kVstMidiType;
+    midiEvent->byteSize = SIZEOFMIDIEVENT;
+    midiEvent->deltaFrames = deltaFrames;
+    midiEvent->flags = 0;
+    midiEvent->midiData[0] = message.code;
+    midiEvent->midiData[1] = message.arg1;
+    midiEvent->midiData[2] = message.arg2 | flags;
+    midiEvent->noteLength = (midiEvent->noteOffset = (midiEvent->noteOffVelocity = (midiEvent->detune = 0)));
     
     return midiEvent;
 }
 
-VstMidiEvent LaunchPadHelper::createResetMessage(VstInt32 deltaFrames)
+VstMidiEventPtr LaunchPadHelper::createResetMessage(VstInt32 deltaFrames)
 {
-    return createRawMessage(MIDIMessage(char(kMIDIControllerChangeEvent), char(0), char(0)), 
-                            false,
-                            false,
-                            deltaFrames);
+    return createRawMessage(MIDIMessage(char(kMIDIControllerChangeEvent), 0, 0), deltaFrames);
 }
 
-VstMidiEvent LaunchPadHelper::createSetLayoutMessage(LaunchPadLayout layout, 
+VstMidiEventPtr LaunchPadHelper::createSetLayoutMessage(LaunchPadLayout layout, 
                                                      VstInt32 deltaFrames)
 {
-    return createRawMessage(MIDIMessage(char(kMIDIControllerChangeEvent), char(0), char(layout)), 
-                            false,
-                            false,
-                            deltaFrames);
+    return createRawMessage(MIDIMessage(char(kMIDIControllerChangeEvent), 0, char(layout)), deltaFrames);
 }
 
-VstMidiEvent LaunchPadHelper::createTopButtonMessage(VstInt32 number, 
-                                                     LaunchPadLEDColor color,
-                                                     VstInt32 deltaFrames) 
+VstMidiEventPtr LaunchPadHelper::createTopButtonMessage(VstInt32 number, 
+                                                   LaunchPadLEDColor color,
+                                                   VstInt32 deltaFrames, 
+												   char flags) 
 {
     assert(number >= 0 && number < 8);
     
     return createRawMessage(MIDIMessage(char(kMIDIControllerChangeEvent), 
                                         char(104 + number), 
-                                        char(color)), 
-                            true,
-                            false,
-                            deltaFrames);
+                                        char(color)),
+                            deltaFrames,
+							flags);
 }
 
-VstMidiEvent LaunchPadHelper::createGridButtonMessage(size_t x, 
-                                                      size_t y,
-                                                      LaunchPadLEDColor color,
-                                                      VstInt32 deltaFrames)
+VstMidiEventPtr LaunchPadHelper::createGridButtonMessage(size_t x, 
+                                                    size_t y,
+                                                    LaunchPadLEDColor color,
+                                                    VstInt32 deltaFrames,
+													char flags)
 {
-    assert(x >= 0 && x < 9 && y >= 0 && y< 8);
+    assert(x >= 0 && x < 8 && y >= 0 && y< 8);
     
-    unsigned char noteNumber = 16 * y + x;
+    char noteNumber = 16 * y + x;
     return createRawMessage(MIDIMessage(char(kMIDINoteOnEvent), 
-                                        char(noteNumber), 
+                                        noteNumber, 
                                         char(color)), 
-                            true,
-                            false,
-                            deltaFrames);
+                            deltaFrames,
+							flags);
 }
 
-VstMidiEvent LaunchPadHelper::createRightButtonMessage(VstInt32 number,
-                                                       LaunchPadLEDColor color,
-                                                       VstInt32 deltaFrames)
+VstMidiEventPtr LaunchPadHelper::createRightButtonMessage(VstInt32 number,
+														LaunchPadLEDColor color,
+														VstInt32 deltaFrames,
+														char flags)
 {
 	assert(number >= 0 && number < 8);
 
 	return createRawMessage(MIDIMessage(char(kMIDINoteOnEvent), 
                                         char((number << 4) + 8), 
                                         char(color)), 
-                            true,
-                            false,
-                            deltaFrames);
+                            deltaFrames,
+                            flags);
 }
 
-VstMidiEvent LaunchPadHelper::createSwapBuffersMessage(bool primaryBuffer, 
+VstMidiEventPtr LaunchPadHelper::createSwapBuffersMessage(bool primaryBuffer, 
                                                        VstInt32 deltaFrames)
 {
     return createRawMessage(MIDIMessage(char(kMIDIControllerChangeEvent), 
-                                        char(0), 
+                                        0, 
                                         primaryBuffer ? 
-                                        char(kMIDIPrimaryBufferAdress) : 
-                                        char(kMIDISecondaryBufferAdress)), 
-                            false, 
-                            false,
+                                        char(kMIDIPrimaryBufferCode) : 
+                                        char(kMIDISecondaryBufferCode)), 
                             deltaFrames);
 }

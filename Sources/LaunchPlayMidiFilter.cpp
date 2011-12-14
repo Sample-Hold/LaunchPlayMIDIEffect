@@ -40,11 +40,8 @@ bool LaunchPlayMidiFilter::getEffectName(char* name)
 
 VstInt32 LaunchPlayMidiFilter::canDo(char *text)
 {
-    if(strcmp(text, "sendVstEvents") == 0 || 
-	   strcmp(text, "sendVstMidiEvent") == 0 || 
-	   strcmp(text, "receiveVstEvents") == 0 || 
-       strcmp(text, "receiveVstMidiEvent") == 0 ||
-       strcmp(text, "receiveVstTimeInfo") == 0)
+    if(strcmp(text, "sendVstMidiEvent") == 0 || 
+	   strcmp(text, "receiveVstMidiEvent") == 0)
         return 1;
     
 	if(strcmp(text, "offline") == 0)
@@ -133,5 +130,7 @@ VstInt32 LaunchPlayMidiFilter::getNumMidiOutputChannels()
 
 void LaunchPlayMidiFilter::processReplacing(float** inputs, float** outputs, VstInt32 sampleFrames)
 {
-
+	// null audio output
+	for(VstInt32 i = 0; i < cEffect.numOutputs; ++i)
+		memset(outputs[i], 0, sampleFrames*sizeof(float));
 }

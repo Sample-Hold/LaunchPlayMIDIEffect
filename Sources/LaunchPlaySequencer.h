@@ -26,8 +26,10 @@
 
 #define kLaunchPadWidth     		8
 #define kLaunchPadHeight    		8
-#define kLaunchPadChannelOffset 	1
 #define kLaunchPadMaxChannel		9
+#define kInstrChannelOffset			1
+
+#define kDefaultTempo				120
 
 namespace LaunchPlayVST {
 
@@ -35,8 +37,8 @@ namespace LaunchPlayVST {
     protected:
         virtual size_t midiEventsCount() const = 0;
         virtual size_t feedbackEventsCount() const = 0;
-        virtual void flushMidiEvents(VstEventsBlock &events) = 0;
-        virtual void flushFeedbackEvents(VstEventsBlock &events) = 0;
+        virtual void flushMidiEvents(VstEventsBlock *buffer) = 0;
+        virtual void flushFeedbackEvents(VstEventsBlock *buffer) = 0;
     public:
         virtual ~SequencerBase() = 0;
         virtual void init() = 0;
@@ -50,17 +52,15 @@ namespace LaunchPlayVST {
         virtual MIDIHelper::Scale  getScale() const = 0;
 		
 
-        void sendFeedbackEventsToHost(LaunchPlayBase *plugin);
-        void sendMidiEventsToHost(LaunchPlayBase *plugin);
+		void sendFeedbackEventsToHost(LaunchPlayBase *plugin, VstEventsBlock *buffer);
+        void sendMidiEventsToHost(LaunchPlayBase *plugin, VstEventsBlock *buffer);
     };
     
     enum GridDirection { up, down, left, right };
     
     struct Worker { 
-        VstInt32 uniqueID;
-		VstInt32 channel;
-        size_t x;
-        size_t y;
+        VstInt32 uniqueID, channelOffset;
+        size_t x, y;
         GridDirection direction;
 
 		Worker();
@@ -68,8 +68,8 @@ namespace LaunchPlayVST {
     
     typedef std::vector<Worker> WorkerList;
     typedef WorkerList::iterator WorkerListIter;
-    typedef std::vector<VstMidiEvent> VstMidiEventList;
-	typedef std::vector<VstDelayedMidiEvent> VstDelayedMidiEventList;
+    typedef std::vector<VstMidiEventPtr> VstMidiEventList;
+	typedef std::vector<VstDelayedMidiEventPtr> VstDelayedMidiEventList;
 	typedef VstDelayedMidiEventList::iterator VstDelayedMidiEventListIter;
     
     class GridSequencer : public SequencerBase {
@@ -78,7 +78,7 @@ namespace LaunchPlayVST {
         };
 
 		struct EqualChannel : std::binary_function<Worker, VstInt32, bool> {
-			bool operator()(Worker const& worker, VstInt32 channel) const;
+			bool operator()(Worker const& worker, VstInt32 channelOffset) const;
 		};
 
         struct MoveForward : std::binary_function<Worker, Worker, void> {
@@ -89,8 +89,8 @@ namespace LaunchPlayVST {
             void operator()(Worker &worker, WorkerList const& workerList) const;
         };
 
-		struct TestDelayedMidiEvents : std::binary_function<VstDelayedMidiEvent, double, bool> {
-            bool operator()(VstDelayedMidiEvent const& delayedMidiEvent, double ppq) const;
+		struct TestDelayedMidiEvents : std::binary_function<VstDelayedMidiEventPtr, double, bool> {
+            bool operator()(VstDelayedMidiEventPtr const midiEvent, double ppq) const;
         };
         
 		void generateNotes(double ppq, VstInt32 sampleOffset);
@@ -104,12 +104,12 @@ namespace LaunchPlayVST {
         MIDIHelper::Scale scale_;
     protected:
         size_t midiEventsCount() const;
-        void flushMidiEvents(VstEventsBlock &events);
+        void flushMidiEvents(VstEventsBlock *buffer);
         
         size_t countWorkersAtLocation(Worker const& worker);
         bool addWorker(Worker const& worker);
         bool removeWorkers(Worker const& worker);
-        bool removeAllWorkers(VstInt32 channel = -1);
+        bool removeAllWorkers(VstInt32 channelOffset);
         WorkerListIter getWorkersBeginIterator();
         WorkerListIter getWorkersEndIterator();
     public:
@@ -137,15 +137,18 @@ namespace LaunchPlayVST {
         std::auto_ptr<Worker> tempWorker_;
     protected:
         size_t feedbackEventsCount() const;
-        void flushFeedbackEvents(VstEventsBlock &events);
+        void flushFeedbackEvents(VstEventsBlock *buffer);
         void resetLaunchPad(VstInt32 deltaFrames);
         void setXYLayout(VstInt32 deltaFrames);
         void showWorkers(VstInt32 deltaFrames);
         void cleanWorkers(VstInt32 deltaFrames);
-        void showDirections(VstInt32 deltaFrames);
+        void changeDirection(GridDirection direction, VstInt32 deltaFrames);
+		void changeEditMode(EditMode mode, VstInt32 deltaFrames);
+		void changeActiveChannel(VstInt32 channelOffset, VstInt32 deltaFrames);
+
         void showRemoveButton(VstInt32 deltaFrames);
-        void showEditMode(VstInt32 deltaFrames);
-		void showActiveChannel(VstInt32 deltaFrames);
+        
+		
         void showTick(double ppq, VstInt32 deltaFrames);
         void swapBuffers(VstInt32 deltaFrames);
     public:
@@ -158,11 +161,13 @@ namespace LaunchPlayVST {
     };
 
     class LaunchPlaySequencer : public LaunchPlayBase {
+		double currentTempo_, currentBeatsPerSample_;
         boost::shared_ptr<SequencerBase> sequencer_;
+		boost::shared_ptr<VstEventsBlock> buffer_;
     protected: 
         void detectTicks(VstTimeInfo *timeInfo, 
                          VstInt32 sampleFrames, 
-                         double stride = kStrideEight);
+                         double stride);
         void onTick(double tempo, double ppq, double sampleRate, VstInt32 sampleOffset);
     public:
         LaunchPlaySequencer(audioMasterCallback audioMaster);

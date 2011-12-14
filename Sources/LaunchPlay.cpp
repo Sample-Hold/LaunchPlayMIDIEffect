@@ -43,12 +43,12 @@ VstInt32 LaunchPlayBase::getVendorVersion()
 	return kVendorVersion; 
 }
 
-VstInt32 LaunchPlayBase::denormalizeValue(float value, VstInt32 max) {
+VstInt32 LaunchPlayBase::denormalizeValue(float const value, VstInt32 const max) {
 	VstInt32 denormalizedValue = (VstInt32) floor((value * max) + .5);
 	return denormalizedValue;
 }
 
-float LaunchPlayBase::normalizeValue(VstInt32 value, VstInt32 max) {
+float LaunchPlayBase::normalizeValue(VstInt32 const value, const VstInt32 max) {
 	float normalizedValue(float(value) / float(max));
 	return normalizedValue;
 }
