@@ -64,6 +64,7 @@ namespace LaunchPlayVST {
         GridDirection direction;
 
 		Worker();
+		bool operator==(Worker const& other) const;
     };
     
     typedef std::vector<Worker> WorkerList;
@@ -106,7 +107,7 @@ namespace LaunchPlayVST {
         size_t midiEventsCount() const;
         void flushMidiEvents(VstEventsBlock *buffer);
         
-        size_t countWorkersAtLocation(Worker const& worker);
+        size_t countWorkersAtLocation(Worker worker);
         bool addWorker(Worker const& worker);
         bool removeWorkers(Worker const& worker);
         bool removeAllWorkers(VstInt32 channelOffset);
