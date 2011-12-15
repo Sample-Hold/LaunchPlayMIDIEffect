@@ -1,26 +1,12 @@
-﻿La génération a démarré 15/12/2011 03:09:14.
-     1>Projet "C:\Users\Fred\Documents\Visual Studio 2010\Projects\LaunchPlayMIDIEffect\VC2010\LaunchPlayVirtualCable\LaunchPlayVirtualCable.vcxproj" sur le nœud 2 (build cible(s)).
+﻿La génération a démarré 15/12/2011 18:59:16.
+     1>Projet "C:\Users\Fred\Documents\Visual Studio 2010\Projects\LaunchPlayMIDIEffect\VC2010\LaunchPlayVirtualCable\LaunchPlayVirtualCable.vcxproj" sur le nœud 3 (build cible(s)).
      1>InitializeBuildStatus:
-         Création de "Debug\LaunchPlayVirtualCable.unsuccessfulbuild", car "AlwaysCreate" a été spécifié.
+         Mise à jour de l'horodatage "Debug\LaunchPlayVirtualCable.unsuccessfulbuild".
        ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D _WINDLL /D WIN32 /D DEBUG /D _WINDLL /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt ..\..\Sources\MIDIHelpers.cpp
-         MIDIHelpers.cpp
-     1>c:\users\fred\documents\visual studio 2010\userlibraries\vstsdk2.4\pluginterfaces\vst2.x\aeffect.h(296): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\string.h(188) : voir la déclaration de 'strncpy'
-     1>c:\users\fred\documents\visual studio 2010\userlibraries\vstsdk2.4\pluginterfaces\vst2.x\aeffect.h(306): warning C4996: 'strncat': This function or variable may be unsafe. Consider using strncat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\string.h(175) : voir la déclaration de 'strncat'
+         Toutes les sorties sont à jour.
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Fred\Documents\Visual Studio 2010\Projects\LaunchPlayMIDIEffect\Debug\LaunchPlayVirtualCable.dll" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /DEF:"C:\Users\Fred\Documents\Visual Studio 2010\Projects\LaunchPlayMIDIEffect\\Resources\LaunchPlay-VCExport.def" /MANIFEST /ManifestFile:"Debug\LaunchPlayVirtualCable.dll.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\Fred\Documents\Visual Studio 2010\Projects\LaunchPlayMIDIEffect\Debug\LaunchPlayVirtualCable.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Fred\Documents\Visual Studio 2010\Projects\LaunchPlayMIDIEffect\Debug\LaunchPlayVirtualCable.lib" /MACHINE:X86 /DLL Debug\audioeffect.obj
-         Debug\audioeffectx.obj
-         Debug\vstplugmain.obj
-         Debug\LaunchPlay.obj
-         Debug\LaunchPlayVirtualCable.obj
-         Debug\MIDIHelpers.obj
-         LINK : C:\Users\Fred\Documents\Visual Studio 2010\Projects\LaunchPlayMIDIEffect\Debug\LaunchPlayVirtualCable.dll introuvable ou non généré par la dernière édition de liens incrémentielle ; édition de liens complète en cours
-            Création de la bibliothèque C:\Users\Fred\Documents\Visual Studio 2010\Projects\LaunchPlayMIDIEffect\Debug\LaunchPlayVirtualCable.lib et de l'objet C:\Users\Fred\Documents\Visual Studio 2010\Projects\LaunchPlayMIDIEffect\Debug\LaunchPlayVirtualCable.exp
+         Toutes les sorties sont à jour.
          LaunchPlayVirtualCable.vcxproj -> C:\Users\Fred\Documents\Visual Studio 2010\Projects\LaunchPlayMIDIEffect\Debug\LaunchPlayVirtualCable.dll
-       Manifest:
-         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"C:\Users\Fred\Documents\Visual Studio 2010\Projects\LaunchPlayMIDIEffect\Debug\LaunchPlayVirtualCable.dll;#2" /manifest Debug\LaunchPlayVirtualCable.dll.intermediate.manifest
        PostBuildEvent:
          Description: Copying LaunchPlayVirtualCable.dll to VST folder....
          copy "C:\Users\Fred\Documents\Visual Studio 2010\Projects\LaunchPlayMIDIEffect\Debug\LaunchPlayVirtualCable.dll" "C:\Program Files (x86)\Steinberg\VstPlugins"
@@ -33,4 +19,4 @@
 
 La génération a réussi.
 
-Temps écoulé 00:00:02.23
+Temps écoulé 00:00:00.10

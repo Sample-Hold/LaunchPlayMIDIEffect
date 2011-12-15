@@ -47,7 +47,7 @@ namespace LaunchPlayVST {
     };
 
     struct VstEventsBlock {
-		enum { kVstEventsBlockSize = 200 };
+		enum { kVstEventsBlockSize = 100 };
 
         VstInt32 numEvents;
         VstIntPtr reserved;
