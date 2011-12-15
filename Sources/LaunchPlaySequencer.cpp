@@ -650,7 +650,7 @@ float LaunchPlaySequencer::getParameter(VstInt32 index)
         case 1: // scale
 			return normalizeValue(sequencer_->getScale(), MIDIHelper::kScaleMaxValue);
 		case 10: // routing
-			return currentRouting_;
+			return float(currentRouting_);
     }
 
 	if(index > 1 && index < 10) { // octave for each channel

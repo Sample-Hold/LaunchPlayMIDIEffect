@@ -1,9 +1,27 @@
-﻿La génération a démarré 15/12/2011 17:18:59.
-     1>Projet "C:\Users\Fred\Documents\Visual Studio 2010\Projects\LaunchPlayMIDIEffect\VC2010\LaunchPlayVirtualCable\LaunchPlayVirtualCable.vcxproj" sur le nœud 2 (build cible(s)).
-     1>InitializeBuildStatus:
+﻿La génération a démarré 15/12/2011 17:21:16.
+     1>Projet "C:\Users\Fred\Documents\Visual Studio 2010\Projects\LaunchPlayMIDIEffect\VC2010\LaunchPlayVirtualCable\LaunchPlayVirtualCable.vcxproj" sur le nœud 2 (rebuild cible(s)).
+     1>_PrepareForClean:
+         Suppression du fichier "Release\LaunchPlayVirtualCable.lastbuildstate".
+       InitializeBuildStatus:
          Création de "Release\LaunchPlayVirtualCable.unsuccessfulbuild", car "AlwaysCreate" a été spécifié.
        ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /Ot /Oy- /GL /D _MBCS /D _WINDLL /D WIN32 /D _WINDLL /D _MBCS /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt ..\..\Sources\LaunchPlayVirtualCable.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /Ot /Oy- /GL /D _MBCS /D _WINDLL /D WIN32 /D _WINDLL /D _MBCS /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt ..\..\..\..\UserLibraries\vstsdk2.4\public.sdk\source\vst2.x\audioeffect.cpp ..\..\..\..\UserLibraries\vstsdk2.4\public.sdk\source\vst2.x\audioeffectx.cpp ..\..\..\..\UserLibraries\vstsdk2.4\public.sdk\source\vst2.x\vstplugmain.cpp ..\..\Sources\LaunchPlay.cpp ..\..\Sources\LaunchPlayVirtualCable.cpp ..\..\Sources\MIDIHelpers.cpp
+         audioeffect.cpp
+     1>C:\Users\Fred\Documents\Visual Studio 2010\UserLibraries\vstsdk2.4\pluginterfaces/vst2.x/aeffect.h(296): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\string.h(188) : voir la déclaration de 'strncpy'
+     1>C:\Users\Fred\Documents\Visual Studio 2010\UserLibraries\vstsdk2.4\pluginterfaces/vst2.x/aeffect.h(306): warning C4996: 'strncat': This function or variable may be unsafe. Consider using strncat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\string.h(175) : voir la déclaration de 'strncat'
+         audioeffectx.cpp
+     1>C:\Users\Fred\Documents\Visual Studio 2010\UserLibraries\vstsdk2.4\pluginterfaces/vst2.x/aeffect.h(296): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\string.h(188) : voir la déclaration de 'strncpy'
+     1>C:\Users\Fred\Documents\Visual Studio 2010\UserLibraries\vstsdk2.4\pluginterfaces/vst2.x/aeffect.h(306): warning C4996: 'strncat': This function or variable may be unsafe. Consider using strncat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\string.h(175) : voir la déclaration de 'strncat'
+         vstplugmain.cpp
+     1>C:\Users\Fred\Documents\Visual Studio 2010\UserLibraries\vstsdk2.4\pluginterfaces/vst2.x/aeffect.h(296): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\string.h(188) : voir la déclaration de 'strncpy'
+     1>C:\Users\Fred\Documents\Visual Studio 2010\UserLibraries\vstsdk2.4\pluginterfaces/vst2.x/aeffect.h(306): warning C4996: 'strncat': This function or variable may be unsafe. Consider using strncat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\string.h(175) : voir la déclaration de 'strncat'
+         LaunchPlay.cpp
          LaunchPlayVirtualCable.cpp
      1>C:\Users\Fred\Documents\Visual Studio 2010\UserLibraries\boost_1_48_0\boost/archive/basic_binary_iprimitive.hpp(181): warning C4244: 'argument' : conversion de 'std::streamsize' en 'size_t', perte possible de données
                  C:\Users\Fred\Documents\Visual Studio 2010\UserLibraries\boost_1_48_0\boost/archive/basic_binary_iprimitive.hpp(152) : lors de la compilation de la fonction membre 'void boost::archive::basic_binary_iprimitive<Archive,Elem,Tr>::load_binary(void *,size_t)' de la classe modèle
@@ -165,6 +183,11 @@
                      Elem=char,
                      Tr=std::char_traits<char>
                  ]
+         MIDIHelpers.cpp
+     1>c:\users\fred\documents\visual studio 2010\userlibraries\vstsdk2.4\pluginterfaces\vst2.x\aeffect.h(296): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\string.h(188) : voir la déclaration de 'strncpy'
+     1>c:\users\fred\documents\visual studio 2010\userlibraries\vstsdk2.4\pluginterfaces\vst2.x\aeffect.h(306): warning C4996: 'strncat': This function or variable may be unsafe. Consider using strncat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\string.h(175) : voir la déclaration de 'strncat'
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Fred\Documents\Visual Studio 2010\Projects\LaunchPlayMIDIEffect\Release\LaunchPlayVirtualCable.dll" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /DEF:"C:\Users\Fred\Documents\Visual Studio 2010\Projects\LaunchPlayMIDIEffect\\Resources\LaunchPlay-VCExport.def" /MANIFEST /ManifestFile:"Release\LaunchPlayVirtualCable.dll.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\Fred\Documents\Visual Studio 2010\Projects\LaunchPlayMIDIEffect\Release\LaunchPlayVirtualCable.pdb" /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Fred\Documents\Visual Studio 2010\Projects\LaunchPlayMIDIEffect\Release\LaunchPlayVirtualCable.lib" /MACHINE:X86 /DLL Release\audioeffect.obj
          Release\audioeffectx.obj
@@ -186,8 +209,8 @@
        FinalizeBuildStatus:
          Suppression du fichier "Release\LaunchPlayVirtualCable.unsuccessfulbuild".
          Mise à jour de l'horodatage "Release\LaunchPlayVirtualCable.lastbuildstate".
-     1>Génération du projet "C:\Users\Fred\Documents\Visual Studio 2010\Projects\LaunchPlayMIDIEffect\VC2010\LaunchPlayVirtualCable\LaunchPlayVirtualCable.vcxproj" terminée (build cible(s)).
+     1>Génération du projet "C:\Users\Fred\Documents\Visual Studio 2010\Projects\LaunchPlayMIDIEffect\VC2010\LaunchPlayVirtualCable\LaunchPlayVirtualCable.vcxproj" terminée (rebuild cible(s)).
 
 La génération a réussi.
 
-Temps écoulé 00:00:02.98
+Temps écoulé 00:00:04.61
