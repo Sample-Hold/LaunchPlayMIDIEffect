@@ -18,6 +18,8 @@
 #include <functional>
 #include <boost/utility.hpp>
 #include <boost/smart_ptr.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/interprocess/ipc/message_queue.hpp>
 
 #define kStrideHalf					2
 #define kStrideQuarter				1
@@ -32,6 +34,8 @@
 #define kDefaultTempo				120
 
 namespace LaunchPlayVST {
+
+	enum Routing { midi, virtualCable };
 
     class SequencerBase : boost::noncopyable {
     protected:
@@ -50,10 +54,9 @@ namespace LaunchPlayVST {
         virtual VstInt32 getBaseNote() const = 0;
 		virtual VstInt32 getOctave(VstInt32 channelOffset) const = 0;
         virtual MIDIHelper::Scale  getScale() const = 0;
-		
 
 		void sendFeedbackEventsToHost(LaunchPlayBase *plugin, VstEventsBlock *buffer);
-        void sendMidiEventsToHost(LaunchPlayBase *plugin, VstEventsBlock *buffer);
+        void sendMidiEventsToHost(LaunchPlayBase *plugin, VstEventsBlock *buffer, Routing routing = midi);
     };
     
     enum GridDirection { up, down, left, right };
@@ -163,6 +166,7 @@ namespace LaunchPlayVST {
 
     class LaunchPlaySequencer : public LaunchPlayBase {
 		double currentTempo_, currentBeatsPerSample_;
+		Routing currentRouting_;
         boost::shared_ptr<SequencerBase> sequencer_;
 		boost::shared_ptr<VstEventsBlock> buffer_;
     protected: 
@@ -186,6 +190,9 @@ namespace LaunchPlayVST {
 
 		VstInt32 getNumMidiInputChannels();
 		VstInt32 getNumMidiOutputChannels();
+
+		VstInt32 getChunk(void **data, bool isPreset = false);	
+		VstInt32 setChunk(void *data, VstInt32 byteSize, bool isPreset=false);
         
         void open();
         void close();

@@ -11,12 +11,10 @@
 using namespace LaunchPlayVST;
 
 #pragma mark createEffectInstance
-#if defined (LAUNCHPLAY_MIDIFILTER_EXPORT)
 AudioEffect* createEffectInstance (audioMasterCallback audioMaster)
 {
     return new LaunchPlayMidiFilter(audioMaster); 
 }
-#endif
 
 #pragma mark LaunchPlayMidiFilter
 LaunchPlayMidiFilter::LaunchPlayMidiFilter(audioMasterCallback audioMaster)
@@ -112,7 +110,7 @@ VstInt32 LaunchPlayMidiFilter::processEvents(VstEvents *events)
 {
 	assert(events != NULL);
 
- 	VstEventsBlock::filterMidiEvents(events, channelOffsetNumber_);
+ 	VstEventsBlock::muteOtherMidiEvents(events, channelOffsetNumber_);
 	sendVstEventsToHost(events);
 
 	return 0;

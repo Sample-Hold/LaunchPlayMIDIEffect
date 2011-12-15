@@ -14,30 +14,14 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
     <Filter Include="Fichiers sources\Imported Sources">
-      <UniqueIdentifier>{68290870-e680-4530-bc79-3305f41b135a}</UniqueIdentifier>
+      <UniqueIdentifier>{67641bdf-8d1b-4682-9b99-59751b95de89}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Sources\LaunchPlay.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Sources\LaunchPlaySequencer.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Sources\MIDIHelpers.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\Resources\LaunchPlay-VCExport.def">
-      <Filter>Fichiers de ressources</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\Sources\LaunchPlay.cpp">
+    <ClCompile Include="..\..\Sources\LaunchPlayVirtualCable.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Sources\LaunchPlaySequencer.cpp">
+    <ClCompile Include="..\..\Sources\LaunchPlay.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Sources\MIDIHelpers.cpp">
@@ -52,5 +36,21 @@
     <ClCompile Include="..\..\..\..\UserLibraries\vstsdk2.4\public.sdk\source\vst2.x\vstplugmain.cpp">
       <Filter>Fichiers sources\Imported Sources</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Sources\LaunchPlayVirtualCable.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\LaunchPlay.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\MIDIHelpers.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Resources\LaunchPlay-VCExport.def">
+      <Filter>Fichiers de ressources</Filter>
+    </None>
   </ItemGroup>
 </Project>

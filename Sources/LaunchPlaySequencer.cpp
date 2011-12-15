@@ -12,16 +12,15 @@
 #include <time.h>
 
 #define BEATSPERSAMPLE(tempo, sampleRate) (tempo) / (sampleRate) / 60.0
+#define BLOCKMSDURATION(blockSize, sampleRate) (blockSize) / (sampleRate) * 1000
 
 using namespace LaunchPlayVST;
 
 #pragma mark createEffectInstance
-#if defined (LAUNCHPLAY_SEQUENCER_EXPORT)
 AudioEffect* createEffectInstance (audioMasterCallback audioMaster)
 {
     return new LaunchPlaySequencer(audioMaster); 
 }
-#endif
 
 #pragma mark SequencerBase
 SequencerBase::~SequencerBase()
@@ -29,20 +28,57 @@ SequencerBase::~SequencerBase()
     
 }
 
-void SequencerBase::sendMidiEventsToHost(LaunchPlayBase *plugin, VstEventsBlock *buffer)
+void SequencerBase::sendMidiEventsToHost(LaunchPlayBase *plugin, VstEventsBlock *buffer, Routing routing)
 {
 	assert(plugin != NULL && midiEventsCount() <= VstEventsBlock::kVstEventsBlockSize);
 
 	if(midiEventsCount() == 0)
 		return;
 
-    buffer->allocate(midiEventsCount());
-    flushMidiEvents(buffer);
-    
-    VstEvents *events = (VstEvents*) buffer;
-    plugin->sendVstEventsToHost(events);
-    
-    buffer->deallocate();
+	buffer->allocate(midiEventsCount());
+	flushMidiEvents(buffer);
+
+	if(routing == midi) { // classic MIDI routing on channels 2-9
+		VstEvents *events = (VstEvents*) buffer;
+		plugin->sendVstEventsToHost(events);
+	}
+
+	if(routing == virtualCable) { // virtual MIDI cable 
+		using namespace boost::interprocess;
+		using namespace boost::posix_time;
+
+		double block_ms_duration = BLOCKMSDURATION(plugin->getBlockSize(), plugin->getSampleRate());
+		
+		for(VstInt32 channel = 1; channel < kLaunchPadMaxChannel; ++channel) {
+			VstEventsBlock filteredByChannel = buffer->getFilteredMidiEvents(channel);
+
+			if(filteredByChannel.numEvents == 0)
+				continue;
+
+			try {
+				std::stringstream ss;
+				ss << kMessageQueueNames;
+				ss << channel;
+
+				boost::posix_time::ptime retry_until(second_clock::local_time());
+				retry_until += microseconds(block_ms_duration) * 3; // retry send must not exceed 3*blockSize
+
+				boost::interprocess::message_queue queue(open_only, ss.str().c_str());
+
+				std::stringbuf sb;
+				boost::archive::binary_oarchive archive(sb);
+				archive << filteredByChannel;
+
+				std::string serializedObject(sb.str());
+				queue.timed_send(serializedObject.c_str(), serializedObject.length(), 0, retry_until);
+			}
+			catch(boost::interprocess::interprocess_exception const& e) {
+				printf("Error while sending to virtual cable %d: %s", channel, e.what());
+			}
+		}
+	}
+
+	buffer->deallocate();
 }
 
 void SequencerBase::sendFeedbackEventsToHost(LaunchPlayBase *plugin, VstEventsBlock *buffer)
@@ -560,12 +596,13 @@ void LaunchPadSequencer::processUserEvents(VstEvents *eventPtr)
 
 #pragma mark LaunchPlaySequencer
 LaunchPlaySequencer::LaunchPlaySequencer(audioMasterCallback audioMaster)
-: LaunchPlayBase(audioMaster, 0, 10), sequencer_(new LaunchPadSequencer), 
-buffer_(new VstEventsBlock), currentTempo_(kDefaultTempo)
+: LaunchPlayBase(audioMaster, 0, 11), sequencer_(new LaunchPadSequencer), 
+buffer_(new VstEventsBlock), currentTempo_(kDefaultTempo), currentRouting_(midi)
 { 
     setUniqueID(kSeqUniqueID);
     noTail();
 	isSynth();
+	programsAreChunks();
 }
 
 LaunchPlaySequencer::~LaunchPlaySequencer()
@@ -610,6 +647,8 @@ float LaunchPlaySequencer::getParameter(VstInt32 index)
             return normalizeValue(sequencer_->getBaseNote(), MIDIHelper::kBaseNoteCount-1);
         case 1: // scale
 			return normalizeValue(sequencer_->getScale(), MIDIHelper::kScaleMaxValue);
+		case 10: // routing
+			return currentRouting_;
     }
 
 	if(index > 1 && index < 10) { // octave for each channel
@@ -631,6 +670,8 @@ void LaunchPlaySequencer::setParameter(VstInt32 index, float value)
         case 1: // scale
 			sequencer_->setScale(MIDIHelper::Scale(denormalizeValue(value, MIDIHelper::kScaleMaxValue)));
 			break;
+		case 10: // routing
+			currentRouting_ = Routing(VstInt32(floor(value+.5)));
     }
 
 	if(index > 1 && index < 10) { // octave for each channel
@@ -730,6 +771,15 @@ void LaunchPlaySequencer::getParameterDisplay(VstInt32 index, char *text)
 					break;
             }
             break;
+		case 10: // routing
+            switch (currentRouting_) {
+			case midi:
+				vst_strncpy(text, "MIDI", kVstMaxParamStrLen);
+				break;
+			case virtualCable:
+				vst_strncpy(text, "Virtual", kVstMaxParamStrLen);
+				break;
+			}
     }
 
 	if(index > 1 && index < 10) { // octave for each channel
@@ -748,6 +798,9 @@ void LaunchPlaySequencer::getParameterName(VstInt32 index, char *text)
             break;
         case 1:
             vst_strncpy(text, "Scale", kVstMaxParamStrLen);
+            break;
+		case 10:
+            vst_strncpy(text, "Routing", kVstMaxParamStrLen);
             break;
 	}
 
@@ -769,6 +822,20 @@ VstInt32 LaunchPlaySequencer::getNumMidiInputChannels()
 VstInt32 LaunchPlaySequencer::getNumMidiOutputChannels()
 {
 	return kLaunchPadMaxChannel;
+}
+
+VstInt32 LaunchPlaySequencer::getChunk(void **data, bool isPreset) {
+	*data = &currentRouting_;
+
+	return sizeof(currentRouting_);
+}
+
+VstInt32 LaunchPlaySequencer::setChunk(void *data, VstInt32 byteSize, bool isPreset) {
+	if(byteSize == sizeof(VstInt32)) {
+		memcpy(&currentRouting_, data, byteSize);
+	}
+
+	return 0;
 }
 
 void LaunchPlaySequencer::processReplacing(float** inputs, float** outputs, VstInt32 sampleFrames)
@@ -821,7 +888,7 @@ void LaunchPlaySequencer::onTick(double tempo, double ppq, double sampleRate, Vs
     sequencer_->sendFeedbackEventsToHost(this, buffer_.get());
     
     // send generated notes to Host
-	sequencer_->sendMidiEventsToHost(this, buffer_.get());
+	sequencer_->sendMidiEventsToHost(this, buffer_.get(), currentRouting_);
 }
 
 VstInt32 LaunchPlaySequencer::processEvents(VstEvents *events) 

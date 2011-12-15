@@ -57,7 +57,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_WINDLL;WIN32;LAUNCHPLAY_MIDIFILTER_EXPORT;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WINDLL;WIN32;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <Link>
@@ -82,7 +82,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_MBCS;_WINDLL;WIN32;LAUNCHPLAY_MIDIFILTER_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;_WINDLL;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
@@ -107,7 +107,6 @@
   <ItemGroup>
     <ClInclude Include="..\..\Sources\LaunchPlay.h" />
     <ClInclude Include="..\..\Sources\LaunchPlayMidiFilter.h" />
-    <ClInclude Include="..\..\Sources\LaunchPlaySequencer.h" />
     <ClInclude Include="..\..\Sources\MIDIHelpers.h" />
   </ItemGroup>
   <ItemGroup>
@@ -119,7 +118,6 @@
     <ClCompile Include="..\..\..\..\UserLibraries\vstsdk2.4\public.sdk\source\vst2.x\vstplugmain.cpp" />
     <ClCompile Include="..\..\Sources\LaunchPlay.cpp" />
     <ClCompile Include="..\..\Sources\LaunchPlayMidiFilter.cpp" />
-    <ClCompile Include="..\..\Sources\LaunchPlaySequencer.cpp" />
     <ClCompile Include="..\..\Sources\MIDIHelpers.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

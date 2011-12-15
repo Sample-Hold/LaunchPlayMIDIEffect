@@ -21,9 +21,6 @@
     <ClInclude Include="..\..\Sources\LaunchPlay.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Sources\LaunchPlaySequencer.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Sources\MIDIHelpers.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
@@ -38,9 +35,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Sources\LaunchPlay.cpp">
-      <Filter>Fichiers sources</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Sources\LaunchPlaySequencer.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Sources\MIDIHelpers.cpp">

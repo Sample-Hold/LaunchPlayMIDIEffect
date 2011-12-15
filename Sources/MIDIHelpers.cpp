@@ -63,7 +63,7 @@ void VstEventsBlock::convertMidiEvent(VstMidiEvent *source, VstEvent *event)
 	memcpy(dest->midiData, source->midiData, sizeof(char)*4);
 }
 
-void VstEventsBlock::filterMidiEvents(VstEvents *events, char channelOffset)
+void VstEventsBlock::muteOtherMidiEvents(VstEvents *events, char channelOffset)
 {
 	assert(events != NULL);
 
@@ -79,6 +79,42 @@ void VstEventsBlock::filterMidiEvents(VstEvents *events, char channelOffset)
 		if(eventChannel != channelOffset) // mute midi event
 			memset(midiEvent->midiData, 0, 4);
 	}
+}
+
+void VstEventsBlock::forceMidiEventsChannelOffset(VstEvents *events, char channelOffset) {
+	assert(events != NULL);
+
+	for(VstInt32 i = 0; i < events->numEvents; ++i) {
+		VstEvent *event = events->events[i];
+
+		if(event->type != kVstMidiType)
+			continue;
+		
+		VstMidiEvent *midiEvent = (VstMidiEvent*) event;
+		midiEvent->midiData[0] &= kMIDILBitMask;
+		midiEvent->midiData[0] |= channelOffset;
+	}
+}
+
+
+VstEventsBlock VstEventsBlock::getFilteredMidiEvents(char channelOffset) {
+	VstEventsBlock filteredEvents;
+	filteredEvents.numEvents = 0;
+
+	for(VstInt32 i = 0; i < numEvents; ++i) {
+		VstEvent *event = events[i];
+
+		if(event->type != kVstMidiType)
+			continue;
+		
+		VstMidiEvent *midiEvent = (VstMidiEvent*) event;
+		char eventChannel = midiEvent->midiData[0] & kMIDIRBitMask;
+
+		if(eventChannel == channelOffset) // include midi event in filteredEvents
+			filteredEvents.events[filteredEvents.numEvents++] = event;
+	}
+
+	return filteredEvents;
 }
 
 void VstEventsBlock::debugVstEvents(VstEvents const* events, char midiEventToWatch)

@@ -23,16 +23,20 @@
 #define kVendorString       "Fred G for sample-hold.com"
 #define kSequencerName      "LaunchPlaySequencer"
 #define kMidiFilterName     "LaunchPlayMidiFilter"
+#define kVirtualCableName   "LaunchPlayVirtualCable"
 #define kVendorVersion      1000
 #define kSeqUniqueID        CCONST('f','9', 's', 'q')
 #define kEmUniqueID         CCONST('f','9', 'e', 'm')
+#define kVcUniqueID         CCONST('f','9', 'v', 'c')
+
+#define kMessageQueueNames	"LaunchPlayVirtualCable_chanX"
 
 namespace LaunchPlayVST {
     
 	class LaunchPlayBase : public AudioEffectX {
 	protected:
 		static VstInt32 denormalizeValue(float const value, VstInt32 const max);
-		static float normalizeValue(VstInt32 const value, VstInt32 const max);
+		static float normalizeValue(VstInt32 const value, VstInt32 const max);		
     public:
         LaunchPlayBase(audioMasterCallback audioMaster, 
                        VstInt32 numPrograms, 

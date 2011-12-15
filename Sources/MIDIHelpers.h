@@ -13,6 +13,8 @@
 #include <stdio.h>
 #include <pluginterfaces/vst2.x/aeffectx.h>
 #include <boost/smart_ptr.hpp>
+#include <boost/serialization/access.hpp>
+#include <boost/interprocess/ipc/message_queue.hpp>
 
 #if defined (WIN32)
 	#define _CRT_SECURE_NO_WARNINGS 1
@@ -55,8 +57,21 @@ namespace LaunchPlayVST {
         void allocate(size_t const size);
         void deallocate();
         static void convertMidiEvent(VstMidiEvent *source, VstEvent *event);
-		static void filterMidiEvents(VstEvents *events, char channelOffset);
+		static void muteOtherMidiEvents(VstEvents *events, char channelOffset);
+		static void forceMidiEventsChannelOffset(VstEvents *events, char channelOffset);
+		VstEventsBlock getFilteredMidiEvents(char channelOffset);
         static void debugVstEvents(VstEvents const* events, char midiEventToWatch = 0);
+
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			ar & numEvents;
+			for(VstInt32 i = 0; i < numEvents; ++i) {
+				ar & events[i];
+			}
+		}
+
+		friend class boost::serialization::access;
     };
 
 	typedef boost::shared_ptr<VstMidiEvent> VstMidiEventPtr;
@@ -185,5 +200,21 @@ namespace LaunchPlayVST {
     };
     
 } // } namespace LaunchPlayVST
+
+namespace boost {
+namespace serialization {
+
+	template<class Archive>
+	void serialize(Archive & ar, VstEvent &event, const unsigned int version)
+	{
+		ar & event.type;
+		ar & event.byteSize;
+		ar & event.deltaFrames;
+		ar & event.flags;
+		ar & event.data;
+	}
+
+} // namespace serialization
+} // namespace boost
 
 #endif
