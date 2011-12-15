@@ -19,17 +19,19 @@
 #include <sstream>
 #include <audioeffectx.h>
 
-#define kProductString      "LaunchPlay sequencer for LaunchPad"
-#define kVendorString       "Fred G for sample-hold.com"
-#define kSequencerName      "LaunchPlaySequencer"
-#define kMidiFilterName     "LaunchPlayMidiFilter"
-#define kVirtualCableName   "LaunchPlayVirtualCable"
-#define kVendorVersion      1000
-#define kSeqUniqueID        CCONST('f','9', 's', 'q')
-#define kEmUniqueID         CCONST('f','9', 'e', 'm')
-#define kVcUniqueID         CCONST('f','9', 'v', 'c')
+#define kProductString          "LaunchPlay sequencer for LaunchPad"
+#define kVendorString           "Fred G for sample-hold.com"
+#define kSequencerName          "LaunchPlaySequencer"
+#define kMidiFilterName         "LaunchPlayMidiFilter"
+#define kVirtualCableName       "LaunchPlayVirtualCable"
+#define kVendorVersion          1000
+#define kSeqUniqueID            CCONST('f','9', 's', 'q')
+#define kEmUniqueID             CCONST('f','9', 'e', 'm')
+#define kVcUniqueID             CCONST('f','9', 'v', 'c')
 
-#define kMessageQueueNames	"LaunchPlayVirtualCable_chanX"
+#define kMessageQueueNames      "LaunchPlayVirtualCable_chanX"
+#define kMaxMIDIChannelOffset	8
+#define kDefaultTempo			120
 
 namespace LaunchPlayVST {
     

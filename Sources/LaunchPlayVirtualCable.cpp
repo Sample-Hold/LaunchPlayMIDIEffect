@@ -71,11 +71,6 @@ void LaunchPlayVirtualCable::setParameter(VstInt32 index, float value)
     }
 }
 
-void LaunchPlayVirtualCable::setParameterAutomated(VstInt32 index, float value)
-{
-    setParameter(index, value);
-}
-
 void LaunchPlayVirtualCable::getParameterDisplay(VstInt32 index, char *text)
 {
     switch (index) {

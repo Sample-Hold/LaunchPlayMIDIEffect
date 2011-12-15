@@ -28,10 +28,7 @@
 
 #define kLaunchPadWidth     		8
 #define kLaunchPadHeight    		8
-#define kLaunchPadMaxChannel		9
 #define kInstrChannelOffset			1
-
-#define kDefaultTempo				120
 
 namespace LaunchPlayVST {
 
@@ -142,6 +139,7 @@ namespace LaunchPlayVST {
     protected:
         size_t feedbackEventsCount() const;
         void flushFeedbackEvents(VstEventsBlock *buffer);
+        
         void resetLaunchPad(VstInt32 deltaFrames);
         void setXYLayout(VstInt32 deltaFrames);
         void showWorkers(VstInt32 deltaFrames);
@@ -149,10 +147,7 @@ namespace LaunchPlayVST {
         void changeDirection(GridDirection direction, VstInt32 deltaFrames);
 		void changeEditMode(EditMode mode, VstInt32 deltaFrames);
 		void changeActiveChannel(VstInt32 channelOffset, VstInt32 deltaFrames);
-
         void showRemoveButton(VstInt32 deltaFrames);
-        
-		
         void showTick(double ppq, VstInt32 deltaFrames);
         void swapBuffers(VstInt32 deltaFrames);
     public:
