@@ -75,7 +75,7 @@ void SequencerBase::sendMidiEventsToHost(LaunchPlayBase *plugin, VstEventsBlock 
                     queue.timed_send(serializedObject.c_str(), serializedObject.length(), 0, retry_until);
                 }
                 catch(boost::interprocess::interprocess_exception const& e) {
-                    printf("Cannot communicate with virtual cable %d: %s", channel, e.what());
+                    //printf("Cannot communicate with virtual cable %d: %s\n", channel, e.what());
                 }
             }
         }

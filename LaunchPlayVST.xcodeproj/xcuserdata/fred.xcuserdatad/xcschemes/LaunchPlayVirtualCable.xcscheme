@@ -14,7 +14,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "B6004F8714999332005EDC62"
-               BuildableName = "LaunchPlayMidiFilter copy.vst"
+               BuildableName = "LaunchPlayVirtualCable.vst"
                BlueprintName = "LaunchPlayVirtualCable"
                ReferencedContainer = "container:LaunchPlayVST.xcodeproj">
             </BuildableReference>
@@ -37,6 +37,9 @@
       buildConfiguration = "Debug"
       debugDocumentVersioning = "YES"
       allowLocationSimulation = "YES">
+      <PathRunnable
+         FilePath = "/Applications/Live 8.2.6/Live.app">
+      </PathRunnable>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>

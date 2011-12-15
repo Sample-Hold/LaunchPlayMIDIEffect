@@ -24,9 +24,11 @@ namespace LaunchPlayVST {
     class LaunchPlayVirtualCable : public LaunchPlayBase {
 		VstInt32 channelOffsetNumber_;
 		boost::shared_array<char> buffer_;
+        boost::shared_ptr<boost::interprocess::message_queue> mq_;
 		static VstInt32 activeInstancesCount_, maxMessageSize_;
 
 		void initMessageSize();
+        void openOrCreateMessageQueue();
     public:
         LaunchPlayVirtualCable(audioMasterCallback audioMaster);
         ~LaunchPlayVirtualCable();

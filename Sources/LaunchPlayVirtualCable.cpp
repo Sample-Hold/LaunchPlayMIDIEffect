@@ -67,6 +67,8 @@ void LaunchPlayVirtualCable::setParameter(VstInt32 index, float value)
     switch (index) {
         case 0: // virtual channel
 			channelOffsetNumber_ = denormalizeValue(value, kMaxMIDIChannelOffset);
+            
+            openOrCreateMessageQueue();
             break;
     }
 }
@@ -129,6 +131,20 @@ void LaunchPlayVirtualCable::initMessageSize()
 	maxMessageSize_ = VstInt32(size);
 }
 
+void LaunchPlayVirtualCable::openOrCreateMessageQueue()
+{
+    try {
+        std::stringstream ss;
+        ss << kMessageQueueNames;
+        ss << channelOffsetNumber_;
+        
+        mq_.reset(new message_queue(open_or_create, ss.str().c_str(), kMaxQueueMessage, maxMessageSize_));
+    }
+    catch(interprocess_exception const&e) {
+        printf("Error while creating virtual cable %d: %s\n", channelOffsetNumber_+1, e.what());
+    }
+}
+
 void LaunchPlayVirtualCable::open() 
 {
 	++activeInstancesCount_;
@@ -139,6 +155,8 @@ void LaunchPlayVirtualCable::open()
 	assert(maxMessageSize_ > 0);
 
 	buffer_.reset(new char[maxMessageSize_]);
+    
+    openOrCreateMessageQueue();
 }
 
 void LaunchPlayVirtualCable::close() 
@@ -148,8 +166,13 @@ void LaunchPlayVirtualCable::close()
 			std::stringstream ss;
 			ss << kMessageQueueNames;
 			ss << i;
-
-			boost::interprocess::message_queue::remove(ss.str().c_str());
+            
+            try {
+                message_queue::remove(ss.str().c_str());
+            }
+            catch(interprocess_exception const&e) {
+                //printf("Error while removing virtual cable %d: %s", i+1, e.what());
+            }
 		}
 	}
 }
@@ -166,19 +189,14 @@ VstInt32 LaunchPlayVirtualCable::processEvents(VstEvents *events)
 
 void LaunchPlayVirtualCable::processReplacing(float** inputs, float** outputs, VstInt32 sampleFrames)
 {
-	std::stringstream ss;
-	ss << kMessageQueueNames;
-	ss << channelOffsetNumber_;
+    assert(mq_.get() != NULL);
 
 	try {
-		boost::interprocess::message_queue queue(open_or_create, ss.str().c_str(), kMaxQueueMessage, maxMessageSize_);
-
 		boost::interprocess::message_queue::size_type message_size;
 		unsigned int priority;
 
-		if(queue.try_receive(buffer_.get(), maxMessageSize_, message_size, priority)) {
-			// reinit string buffer
-			ss.str("");
+		if(mq_->try_receive(buffer_.get(), maxMessageSize_, message_size, priority)) {
+			std::stringstream ss;
 
 			// copy received object to string buffer
 			ss.write(buffer_.get(), message_size);
@@ -199,7 +217,7 @@ void LaunchPlayVirtualCable::processReplacing(float** inputs, float** outputs, V
 		}
 	}
 	catch(boost::interprocess::interprocess_exception const& e) {
-		printf("Error with virtual cable %d: %s", channelOffsetNumber_+1, e.what());
+		//printf("Error with virtual cable %d: %s\n", channelOffsetNumber_+1, e.what());
 	}
 
 	// null audio output
