@@ -12,9 +12,6 @@
 #include "LaunchPlay.h"
 #include "MIDIHelpers.h"
 
-#define kMaxMIDIChannelOffset	8
-#define kMaxMIDIChannel			9
-
 namespace LaunchPlayVST {
     
     class LaunchPlayMidiFilter : public LaunchPlayBase {
@@ -29,9 +26,9 @@ namespace LaunchPlayVST {
 
 		float getParameter(VstInt32 index);
         void setParameter(VstInt32 index, float value);
-        void setParameterAutomated(VstInt32 index, float value);
         void getParameterName(VstInt32 index, char *text);
         void getParameterDisplay(VstInt32 index, char *text);
+        bool canParameterBeAutomated (VstInt32 index) { return false; } 
 
 		VstInt32 getNumMidiInputChannels();
 		VstInt32 getNumMidiOutputChannels();

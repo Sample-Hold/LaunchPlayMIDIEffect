@@ -71,11 +71,6 @@ void LaunchPlayVirtualCable::setParameter(VstInt32 index, float value)
     }
 }
 
-void LaunchPlayVirtualCable::setParameterAutomated(VstInt32 index, float value)
-{
-    setParameter(index, value);
-}
-
 void LaunchPlayVirtualCable::getParameterDisplay(VstInt32 index, char *text)
 {
     switch (index) {
@@ -131,7 +126,7 @@ void LaunchPlayVirtualCable::initMessageSize()
 	testBlock.deallocate();
 
 	std::streamsize size(sb.in_avail());
-	maxMessageSize_ = size;
+	maxMessageSize_ = VstInt32(size);
 }
 
 void LaunchPlayVirtualCable::open() 

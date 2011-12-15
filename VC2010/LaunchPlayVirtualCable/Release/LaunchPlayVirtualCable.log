@@ -1,11 +1,10 @@
-﻿La génération a démarré 15/12/2011 03:17:23.
+﻿La génération a démarré 15/12/2011 17:18:59.
      1>Projet "C:\Users\Fred\Documents\Visual Studio 2010\Projects\LaunchPlayMIDIEffect\VC2010\LaunchPlayVirtualCable\LaunchPlayVirtualCable.vcxproj" sur le nœud 2 (build cible(s)).
      1>InitializeBuildStatus:
          Création de "Release\LaunchPlayVirtualCable.unsuccessfulbuild", car "AlwaysCreate" a été spécifié.
        ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /Ot /Oy- /GL /D _MBCS /D _WINDLL /D WIN32 /D _WINDLL /D _MBCS /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt ..\..\Sources\LaunchPlayVirtualCable.cpp
          LaunchPlayVirtualCable.cpp
-     1>..\..\Sources\LaunchPlayVirtualCable.cpp(134): warning C4244: '=' : conversion de 'std::streamsize' en 'VstInt32', perte possible de données
      1>C:\Users\Fred\Documents\Visual Studio 2010\UserLibraries\boost_1_48_0\boost/archive/basic_binary_iprimitive.hpp(181): warning C4244: 'argument' : conversion de 'std::streamsize' en 'size_t', perte possible de données
                  C:\Users\Fred\Documents\Visual Studio 2010\UserLibraries\boost_1_48_0\boost/archive/basic_binary_iprimitive.hpp(152) : lors de la compilation de la fonction membre 'void boost::archive::basic_binary_iprimitive<Archive,Elem,Tr>::load_binary(void *,size_t)' de la classe modèle
                  with
@@ -191,4 +190,4 @@
 
 La génération a réussi.
 
-Temps écoulé 00:00:02.88
+Temps écoulé 00:00:02.98

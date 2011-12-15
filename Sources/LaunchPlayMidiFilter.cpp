@@ -67,11 +67,6 @@ void LaunchPlayMidiFilter::setParameter(VstInt32 index, float value)
     }
 }
 
-void LaunchPlayMidiFilter::setParameterAutomated(VstInt32 index, float value)
-{
-    setParameter(index, value);
-}
-
 void LaunchPlayMidiFilter::getParameterDisplay(VstInt32 index, char *text)
 {
     switch (index) {
@@ -118,12 +113,12 @@ VstInt32 LaunchPlayMidiFilter::processEvents(VstEvents *events)
 
 VstInt32 LaunchPlayMidiFilter::getNumMidiInputChannels()
 {
-	return kMaxMIDIChannel;
+	return 1;
 }
 
 VstInt32 LaunchPlayMidiFilter::getNumMidiOutputChannels()
 {
-	return kMaxMIDIChannel;
+	return kMaxMIDIChannelOffset + 1;
 }
 
 void LaunchPlayMidiFilter::processReplacing(float** inputs, float** outputs, VstInt32 sampleFrames)

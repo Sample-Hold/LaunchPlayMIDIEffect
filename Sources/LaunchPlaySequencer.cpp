@@ -36,49 +36,53 @@ void SequencerBase::sendMidiEventsToHost(LaunchPlayBase *plugin, VstEventsBlock 
 		return;
 
 	buffer->allocate(midiEventsCount());
-	flushMidiEvents(buffer);
-
-	if(routing == midi) { // classic MIDI routing on channels 2-9
-		VstEvents *events = (VstEvents*) buffer;
-		plugin->sendVstEventsToHost(events);
-	}
-
-	if(routing == virtualCable) { // virtual MIDI cable 
-		using namespace boost::interprocess;
-		using namespace boost::posix_time;
-
-		double block_ms_duration = BLOCKMSDURATION(plugin->getBlockSize(), plugin->getSampleRate());
-		
-		for(VstInt32 channel = 1; channel < kLaunchPadMaxChannel; ++channel) {
-			VstEventsBlock filteredByChannel = buffer->getFilteredMidiEvents(channel);
-
-			if(filteredByChannel.numEvents == 0)
-				continue;
-
-			try {
-				std::stringstream ss;
-				ss << kMessageQueueNames;
-				ss << channel;
-
-				boost::posix_time::ptime retry_until(second_clock::local_time());
-				retry_until += microseconds(block_ms_duration) * 3; // retry send must not exceed 3*blockSize
-
-				boost::interprocess::message_queue queue(open_only, ss.str().c_str());
-
-				std::stringbuf sb;
-				boost::archive::binary_oarchive archive(sb);
-				archive << filteredByChannel;
-
-				std::string serializedObject(sb.str());
-				queue.timed_send(serializedObject.c_str(), serializedObject.length(), 0, retry_until);
-			}
-			catch(boost::interprocess::interprocess_exception const& e) {
-				printf("Error while sending to virtual cable %d: %s", channel, e.what());
-			}
-		}
-	}
-
-	buffer->deallocate();
+    
+    try {
+        flushMidiEvents(buffer);
+        
+        if(routing == midi) { // classic MIDI routing on channels 2-9
+            VstEvents *events = (VstEvents*) buffer;
+            plugin->sendVstEventsToHost(events);
+        }
+        
+        if(routing == virtualCable) { // virtual MIDI cable 
+            using namespace boost::interprocess;
+            using namespace boost::posix_time;
+            
+            double block_ms_duration = BLOCKMSDURATION(plugin->getBlockSize(), plugin->getSampleRate());
+            
+            for(VstInt32 channel = kInstrChannelOffset; channel <= kMaxMIDIChannelOffset; ++channel) {
+                VstEventsBlock filteredEventsBlock = buffer->getFilteredMidiEvents(channel);
+                
+                if(filteredEventsBlock.numEvents == 0)
+                    continue;
+                
+                try {
+                    std::stringstream ss;
+                    ss << kMessageQueueNames;
+                    ss << channel;
+                    
+                    boost::posix_time::ptime retry_until(second_clock::local_time());
+                    retry_until += microseconds(block_ms_duration) * 3; // retry send must not exceed 3*blockSize
+                    
+                    boost::interprocess::message_queue queue(open_only, ss.str().c_str());
+                    
+                    std::stringbuf sb;
+                    boost::archive::binary_oarchive archive(sb);
+                    archive << filteredEventsBlock;
+                    
+                    std::string serializedObject(sb.str());
+                    queue.timed_send(serializedObject.c_str(), serializedObject.length(), 0, retry_until);
+                }
+                catch(boost::interprocess::interprocess_exception const& e) {
+                    printf("Cannot communicate with virtual cable %d: %s", channel, e.what());
+                }
+            }
+        }
+    }
+    catch(...) { buffer->deallocate(); }
+    
+    buffer->deallocate();
 }
 
 void SequencerBase::sendFeedbackEventsToHost(LaunchPlayBase *plugin, VstEventsBlock *buffer)
@@ -89,11 +93,14 @@ void SequencerBase::sendFeedbackEventsToHost(LaunchPlayBase *plugin, VstEventsBl
 		return;
 
     buffer->allocate(feedbackEventsCount());
-    flushFeedbackEvents(buffer);
     
-    VstEvents *events = (VstEvents*) buffer;
-    plugin->sendVstEventsToHost(events);
-    
+    try {
+        flushFeedbackEvents(buffer);
+        VstEvents *events = (VstEvents*) buffer;
+        plugin->sendVstEventsToHost(events);
+    }
+    catch(...) { buffer->deallocate(); }
+        
     buffer->deallocate();
 }
 
@@ -105,10 +112,7 @@ Worker::Worker() : uniqueID(VstInt32(time(NULL)))
 
 bool Worker::operator==(Worker const& other) const
 {
-	return other.uniqueID == uniqueID && 
-		other.channelOffset == channelOffset &&
-		other.x == x &&
-		other.y == y;
+	return other.uniqueID == uniqueID;
 }
 
 #pragma mark GridSequencer
@@ -118,7 +122,8 @@ GridSequencer::GridSequencer(size_t width, size_t height)
     boundaries_.x = width;
     boundaries_.y = height;
 
-	memset(octaves_.get(), 0, sizeof(VstInt32)*MIDIHelper::kMaxChannels);
+    for(VstInt32 i = 0; i < MIDIHelper::kMaxChannels; ++i)
+        octaves_[i] = 0;
 }
 
 GridSequencer::~GridSequencer()
@@ -170,7 +175,7 @@ void GridSequencer::HandleCollisions::operator()(Worker &worker, WorkerList cons
 bool GridSequencer::TestDelayedMidiEvents::operator()(VstDelayedMidiEventPtr const midiEvent, double ppq) const
 {
 	double diff = ppq - midiEvent->ppqStart;
-	return (diff >= kStrideQuarter); // midi events are delayed each 1/8th notes
+	return (diff >= kStrideQuarter); // midi events are delayed each 1/4th notes
 }
 
 WorkerListIter GridSequencer::getWorkersBeginIterator()
@@ -269,8 +274,8 @@ void GridSequencer::generateNotes(double ppq, VstInt32 sampleOffset)
         if(it->y != 0 && countWorkersAtLocation(*it) < 2)
 			continue;
 
-		// worker generate notes only once
-		if(std::find(tempArray.begin(), tempArray.end(), *it) != tempArray.end())
+		// workers at same location generate notes only once
+		if(std::find_if(tempArray.begin(), tempArray.end(), std::bind2nd(EqualLocations(), *it)) != tempArray.end())
 			continue;
 
 		tempArray.push_back(*it);
@@ -353,13 +358,9 @@ MIDIHelper::Scale GridSequencer::getScale() const
 
 #pragma mark LaunchPadSequencer
 LaunchPadSequencer::LaunchPadSequencer()
-: GridSequencer(kLaunchPadWidth, kLaunchPadHeight), 
-currentDirection_(up), 
-currentChannelOffset_(0), 
-currentEditMode_(addWorkersMode), 
-tempWorker_(NULL),
-primaryBufferEnabled_(false),
-removeAll_(false)
+: GridSequencer(kLaunchPadWidth, kLaunchPadHeight), currentDirection_(up), 
+currentChannelOffset_(0), currentEditMode_(addWorkersMode), 
+tempWorker_(NULL), primaryBufferEnabled_(false), removeAll_(false)
 {
     
 }
@@ -536,6 +537,7 @@ void LaunchPadSequencer::processForward(double tempo, double ppq, double sampleR
      // show tick
     showTick(ppq, sampleOffset);
 
+    // swap buffers
 	swapBuffers(++sampleOffset);
 }
 
@@ -671,7 +673,7 @@ void LaunchPlaySequencer::setParameter(VstInt32 index, float value)
 			sequencer_->setScale(MIDIHelper::Scale(denormalizeValue(value, MIDIHelper::kScaleMaxValue)));
 			break;
 		case 10: // routing
-			currentRouting_ = Routing(VstInt32(floor(value+.5)));
+			currentRouting_ = Routing(denormalizeValue(value, 1));  
     }
 
 	if(index > 1 && index < 10) { // octave for each channel
@@ -821,7 +823,7 @@ VstInt32 LaunchPlaySequencer::getNumMidiInputChannels()
 
 VstInt32 LaunchPlaySequencer::getNumMidiOutputChannels()
 {
-	return kLaunchPadMaxChannel;
+	return kMaxMIDIChannelOffset+1;
 }
 
 VstInt32 LaunchPlaySequencer::getChunk(void **data, bool isPreset) {

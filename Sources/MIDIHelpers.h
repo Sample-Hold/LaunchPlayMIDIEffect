@@ -14,7 +14,6 @@
 #include <pluginterfaces/vst2.x/aeffectx.h>
 #include <boost/smart_ptr.hpp>
 #include <boost/serialization/access.hpp>
-#include <boost/interprocess/ipc/message_queue.hpp>
 
 #if defined (WIN32)
 	#define _CRT_SECURE_NO_WARNINGS 1
@@ -70,8 +69,6 @@ namespace LaunchPlayVST {
 				ar & events[i];
 			}
 		}
-
-		friend class boost::serialization::access;
     };
 
 	typedef boost::shared_ptr<VstMidiEvent> VstMidiEventPtr;

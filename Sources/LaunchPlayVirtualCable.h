@@ -17,9 +17,7 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/interprocess/ipc/message_queue.hpp>
 
-#define kMaxMIDIChannelOffset	8
-#define kMaxMIDIChannel			9
-#define kMaxQueueMessage		100
+#define kMaxQueueMessage		32
 
 namespace LaunchPlayVST {
     
@@ -27,7 +25,7 @@ namespace LaunchPlayVST {
 		VstInt32 channelOffsetNumber_;
 		boost::shared_array<char> buffer_;
 		static VstInt32 activeInstancesCount_, maxMessageSize_;
-	protected:
+
 		void initMessageSize();
     public:
         LaunchPlayVirtualCable(audioMasterCallback audioMaster);
@@ -39,9 +37,9 @@ namespace LaunchPlayVST {
 
 		float getParameter(VstInt32 index);
         void setParameter(VstInt32 index, float value);
-        void setParameterAutomated(VstInt32 index, float value);
         void getParameterName(VstInt32 index, char *text);
         void getParameterDisplay(VstInt32 index, char *text);
+        bool canParameterBeAutomated (VstInt32 index) { return false; } 
 
 		VstInt32 getNumMidiInputChannels();
 		VstInt32 getNumMidiOutputChannels();
