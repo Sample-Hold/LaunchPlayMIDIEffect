@@ -14,10 +14,7 @@
 
 #include <boost/smart_ptr.hpp>
 #include <boost/archive/binary_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
 #include <boost/interprocess/ipc/message_queue.hpp>
-
-#define kMaxQueueMessage		32
 
 namespace LaunchPlayVST {
     
@@ -26,9 +23,6 @@ namespace LaunchPlayVST {
 		boost::shared_array<char> buffer_;
 		static VstInt32 activeInstancesCount_, maxMessageSize_;
 
-		void initMessageSize();
-        void openOrCreateCurrentMessageQueue();
-        void closeCurrentMessageQueue();
         void closeAllMessageQueues();
     public:
         LaunchPlayVirtualCable(audioMasterCallback audioMaster);

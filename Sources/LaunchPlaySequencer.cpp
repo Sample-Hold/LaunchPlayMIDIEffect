@@ -12,7 +12,6 @@
 #include <time.h>
 
 #define BEATSPERSAMPLE(tempo, sampleRate) (tempo) / (sampleRate) / 60.0
-#define BLOCKMSDURATION(blockSize, sampleRate) (blockSize) / (sampleRate) * 1000
 
 using namespace LaunchPlayVST;
 
@@ -26,6 +25,16 @@ AudioEffect* createEffectInstance (audioMasterCallback audioMaster)
 SequencerBase::~SequencerBase()
 {
     
+}
+
+void SequencerBase::init()
+{
+	maxMessageSize_ = VstEventsBlock::getMaxSizeWhenSerialized();
+}
+
+void SequencerBase::close()
+{
+	closeAllMessageQueues();
 }
 
 void SequencerBase::sendMidiEventsToHost(LaunchPlayBase *plugin, VstEventsBlock *buffer, Routing routing)
@@ -48,9 +57,7 @@ void SequencerBase::sendMidiEventsToHost(LaunchPlayBase *plugin, VstEventsBlock 
         if(routing == virtualCable) { // virtual MIDI cable 
             using namespace boost::interprocess;
             using namespace boost::posix_time;
-            
-            double block_ms_duration = BLOCKMSDURATION(plugin->getBlockSize(), plugin->getSampleRate());
-            
+
             for(VstInt32 channel = kInstrChannelOffset; channel <= kMaxMIDIChannelOffset; ++channel) {
                 VstEventsBlock filteredEventsBlock = buffer->getFilteredMidiEvents(channel);
                 
@@ -61,21 +68,23 @@ void SequencerBase::sendMidiEventsToHost(LaunchPlayBase *plugin, VstEventsBlock 
                     std::stringstream ss;
                     ss << kMessageQueueNames;
                     ss << channel;
-                    
-                    boost::posix_time::ptime retry_until(second_clock::local_time());
-                    retry_until += microseconds(block_ms_duration) * 3; // retry send must not exceed 3*blockSize
-                    
-                    boost::interprocess::message_queue queue(open_only, ss.str().c_str());
-                    
+
+					permissions all_permissions;
+					all_permissions.set_unrestricted();
+					boost::interprocess::message_queue mq(boost::interprocess::open_or_create, 
+															ss.str().c_str(), kMaxQueueMessage, 
+															maxMessageSize_, 
+															all_permissions);
+
                     std::stringbuf sb;
                     boost::archive::binary_oarchive archive(sb);
                     archive << filteredEventsBlock;
                     
                     std::string serializedObject(sb.str());
-                    queue.timed_send(serializedObject.c_str(), serializedObject.length(), 0, retry_until);
+                    mq.try_send(serializedObject.c_str(), serializedObject.length(), 0);
                 }
-                catch(boost::interprocess::interprocess_exception const& e) {
-                    //printf("Cannot communicate with virtual cable %d: %s\n", channel, e.what());
+                catch(...) {
+                    //printf("Cannot communicate with virtual cable %d\n", channel);
                 }
             }
         }
@@ -102,6 +111,22 @@ void SequencerBase::sendFeedbackEventsToHost(LaunchPlayBase *plugin, VstEventsBl
     catch(...) { buffer->deallocate(); }
         
     buffer->deallocate();
+}
+
+void SequencerBase::closeAllMessageQueues()
+{
+    for(VstInt32 i = 0; i <= kMaxMIDIChannelOffset; ++i) {
+        std::stringstream ss;
+        ss << kMessageQueueNames;
+        ss << i;
+        
+        try {
+            boost::interprocess::message_queue::remove(ss.str().c_str());
+        }
+        catch(boost::interprocess::interprocess_exception) {
+            //printf("Error closing channel %d\n", i+1);
+        }
+    }
 }
 
 #pragma mark Worker
@@ -497,6 +522,8 @@ void LaunchPadSequencer::flushFeedbackEvents(VstEventsBlock *buffer)
 
 void LaunchPadSequencer::init()
 {
+	SequencerBase::init();
+
     resetLaunchPad(0);
 	changeDirection(currentDirection_, 1);
 	changeActiveChannel(currentChannelOffset_, 1);
@@ -620,7 +647,7 @@ void LaunchPlaySequencer::open()
 
 void LaunchPlaySequencer::close()
 {
-
+	sequencer_->close();
 }
 
 bool LaunchPlaySequencer::getEffectName(char* name)

@@ -4,7 +4,7 @@
     <LocalDebuggerCommand>$(VstHostDir)\$(VstHostExecutable)</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerWorkingDirectory>$(VstPluginsDir)</LocalDebuggerWorkingDirectory>
-    <LocalDebuggerAttach>true</LocalDebuggerAttach>
+    <LocalDebuggerAttach>false</LocalDebuggerAttach>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LocalDebuggerCommand>$(VstHostDir)\$(VstHostExecutable)</LocalDebuggerCommand>

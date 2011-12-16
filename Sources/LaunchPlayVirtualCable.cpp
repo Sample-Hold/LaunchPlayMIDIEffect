@@ -116,20 +116,6 @@ VstInt32 LaunchPlayVirtualCable::getNumMidiOutputChannels()
 	return 1;
 }
 
-void LaunchPlayVirtualCable::initMessageSize() 
-{
-	VstEventsBlock testBlock;
-	std::stringbuf sb;
-	boost::archive::binary_oarchive dummyArchive(sb);
-
-	testBlock.allocate(VstEventsBlock::kVstEventsBlockSize);
-	dummyArchive & testBlock;
-	testBlock.deallocate();
-
-	std::streamsize size(sb.in_avail());
-	maxMessageSize_ = VstInt32(size);
-}
-
 void LaunchPlayVirtualCable::closeAllMessageQueues()
 {
     for(VstInt32 i = 0; i <= kMaxMIDIChannelOffset; ++i) {
@@ -149,7 +135,7 @@ void LaunchPlayVirtualCable::closeAllMessageQueues()
 void LaunchPlayVirtualCable::open() 
 {
 	if(activeInstancesCount_ == 1)
-		initMessageSize();
+		maxMessageSize_ = VstEventsBlock::getMaxSizeWhenSerialized();
 
 	buffer_.reset(new char[maxMessageSize_]);
 }

@@ -29,7 +29,8 @@
 #define kEmUniqueID             CCONST('f','9', 'e', 'm')
 #define kVcUniqueID             CCONST('f','9', 'v', 'c')
 
-#define kMessageQueueNames      "LaunchPlayVirtualCable_chanX"
+#define kMessageQueueNames      "LaunchPlayVirtualCable_chan"
+#define kMaxQueueMessage		32
 #define kMaxMIDIChannelOffset	8
 #define kDefaultTempo			120
 

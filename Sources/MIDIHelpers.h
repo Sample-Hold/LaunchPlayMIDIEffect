@@ -11,9 +11,11 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <sstream>
 #include <pluginterfaces/vst2.x/aeffectx.h>
 #include <boost/smart_ptr.hpp>
 #include <boost/serialization/access.hpp>
+#include <boost/archive/binary_oarchive.hpp>
 
 #if defined (WIN32)
 	#define _CRT_SECURE_NO_WARNINGS 1
@@ -58,7 +60,8 @@ namespace LaunchPlayVST {
         static void convertMidiEvent(VstMidiEvent *source, VstEvent *event);
 		static void muteOtherMidiEvents(VstEvents *events, char channelOffset);
 		static void forceMidiEventsChannelOffset(VstEvents *events, char channelOffset);
-		VstEventsBlock getFilteredMidiEvents(char channelOffset);
+		static size_t getMaxSizeWhenSerialized();
+		VstEventsBlock getFilteredMidiEvents(char channelOffset);	
         static void debugVstEvents(VstEvents const* events, char midiEventToWatch = 0);
 
 		template<class Archive>

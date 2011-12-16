@@ -35,6 +35,9 @@ namespace LaunchPlayVST {
 	enum Routing { midi, virtualCable };
 
     class SequencerBase : boost::noncopyable {
+		VstInt32 maxMessageSize_;
+
+		void closeAllMessageQueues();
     protected:
         virtual size_t midiEventsCount() const = 0;
         virtual size_t feedbackEventsCount() const = 0;
@@ -42,7 +45,8 @@ namespace LaunchPlayVST {
         virtual void flushFeedbackEvents(VstEventsBlock *buffer) = 0;
     public:
         virtual ~SequencerBase() = 0;
-        virtual void init() = 0;
+        virtual void init();
+		virtual void close();
         virtual void processForward(double tempo, double ppq, double sampleRate, VstInt32 sampleOffset) = 0;
         virtual void processUserEvents(VstEvents *events) = 0;
         virtual void setBaseNote(VstInt32 note) = 0;

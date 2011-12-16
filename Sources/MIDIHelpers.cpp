@@ -117,6 +117,19 @@ VstEventsBlock VstEventsBlock::getFilteredMidiEvents(char channelOffset) {
 	return filteredEvents;
 }
 
+size_t VstEventsBlock::getMaxSizeWhenSerialized()
+{
+	VstEventsBlock testBlock;
+	std::stringbuf sb;
+	boost::archive::binary_oarchive dummyArchive(sb);
+
+	testBlock.allocate(VstEventsBlock::kVstEventsBlockSize);
+	dummyArchive & testBlock;
+	testBlock.deallocate();
+
+	return size_t(sb.in_avail());
+}
+
 void VstEventsBlock::debugVstEvents(VstEvents const* events, char midiEventToWatch)
 {
     assert(events != NULL);
