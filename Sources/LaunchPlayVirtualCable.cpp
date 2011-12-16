@@ -27,11 +27,13 @@ LaunchPlayVirtualCable::LaunchPlayVirtualCable(audioMasterCallback audioMaster)
     setUniqueID(kVcUniqueID);
     noTail();
 	programsAreChunks();
+    
+    ++activeInstancesCount_;
 }
 
 LaunchPlayVirtualCable::~LaunchPlayVirtualCable()
 {
-
+    --activeInstancesCount_;
 }
 
 bool LaunchPlayVirtualCable::getEffectName(char* name)
@@ -42,8 +44,7 @@ bool LaunchPlayVirtualCable::getEffectName(char* name)
 
 VstInt32 LaunchPlayVirtualCable::canDo(char *text)
 {
-    if(strcmp(text, "sendVstMidiEvent") == 0 || 
-	   strcmp(text, "receiveVstMidiEvent") == 0)
+    if(strcmp(text, "sendVstMidiEvent") == 0)
         return 1;
     
 	if(strcmp(text, "offline") == 0)
@@ -67,8 +68,6 @@ void LaunchPlayVirtualCable::setParameter(VstInt32 index, float value)
     switch (index) {
         case 0: // virtual channel
 			channelOffsetNumber_ = denormalizeValue(value, kMaxMIDIChannelOffset);
-            
-            openOrCreateMessageQueue();
             break;
     }
 }
@@ -131,71 +130,51 @@ void LaunchPlayVirtualCable::initMessageSize()
 	maxMessageSize_ = VstInt32(size);
 }
 
-void LaunchPlayVirtualCable::openOrCreateMessageQueue()
+void LaunchPlayVirtualCable::closeAllMessageQueues()
 {
-    try {
+    for(VstInt32 i = 0; i <= kMaxMIDIChannelOffset; ++i) {
         std::stringstream ss;
         ss << kMessageQueueNames;
-        ss << channelOffsetNumber_;
+        ss << i;
         
-        mq_.reset(new message_queue(open_or_create, ss.str().c_str(), kMaxQueueMessage, maxMessageSize_));
-    }
-    catch(interprocess_exception const&e) {
-        printf("Error while creating virtual cable %d: %s\n", channelOffsetNumber_+1, e.what());
+        try {
+            message_queue::remove(ss.str().c_str());
+        }
+        catch(interprocess_exception const& e) {
+            printf("Error closing channel %d: %s\n", i+1, e.what());
+        }
     }
 }
 
 void LaunchPlayVirtualCable::open() 
 {
-	++activeInstancesCount_;
-
-	if(maxMessageSize_ == 0)
+	if(activeInstancesCount_ == 1)
 		initMessageSize();
 
-	assert(maxMessageSize_ > 0);
-
 	buffer_.reset(new char[maxMessageSize_]);
-    
-    openOrCreateMessageQueue();
 }
 
 void LaunchPlayVirtualCable::close() 
 {
-	if(--activeInstancesCount_ == 0) { // close all message queues
-		for(VstInt32 i = 0; i < kMaxMIDIChannelOffset; ++i) {
-			std::stringstream ss;
-			ss << kMessageQueueNames;
-			ss << i;
-            
-            try {
-                message_queue::remove(ss.str().c_str());
-            }
-            catch(interprocess_exception const&e) {
-                //printf("Error while removing virtual cable %d: %s", i+1, e.what());
-            }
-		}
-	}
+	if(activeInstancesCount_ == 1) // close all message queues
+		closeAllMessageQueues();
 }
-
-VstInt32 LaunchPlayVirtualCable::processEvents(VstEvents *events) 
-{
-	assert(events != NULL);
-
- 	VstEventsBlock::muteOtherMidiEvents(events, channelOffsetNumber_);
-	sendVstEventsToHost(events);
-
-	return 0;
-} 
 
 void LaunchPlayVirtualCable::processReplacing(float** inputs, float** outputs, VstInt32 sampleFrames)
 {
-    assert(mq_.get() != NULL);
-
 	try {
 		boost::interprocess::message_queue::size_type message_size;
 		unsigned int priority;
+        
+        std::stringstream ss;
+        ss << kMessageQueueNames;
+        ss << channelOffsetNumber_;
+        
+        permissions all_permissions;
+        all_permissions.set_unrestricted();
+        message_queue mq(open_or_create, ss.str().c_str(), kMaxQueueMessage, maxMessageSize_, all_permissions);
 
-		if(mq_->try_receive(buffer_.get(), maxMessageSize_, message_size, priority)) {
+		if(mq.try_receive(buffer_.get(), maxMessageSize_, message_size, priority)) {
 			std::stringstream ss;
 
 			// copy received object to string buffer
@@ -217,7 +196,7 @@ void LaunchPlayVirtualCable::processReplacing(float** inputs, float** outputs, V
 		}
 	}
 	catch(boost::interprocess::interprocess_exception const& e) {
-		//printf("Error with virtual cable %d: %s\n", channelOffsetNumber_+1, e.what());
+		printf("Error with virtual cable %d: %s\n", channelOffsetNumber_+1, e.what());
 	}
 
 	// null audio output
