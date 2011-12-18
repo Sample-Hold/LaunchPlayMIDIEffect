@@ -81,7 +81,7 @@ void VstEventsBlock::muteOtherMidiEvents(VstEvents *events, char channelOffset)
 	}
 }
 
-void VstEventsBlock::forceMidiEventsChannelOffset(VstEvents *events, char channelOffset) {
+void VstEventsBlock::forceChannelAndDeltaFrames(VstEvents *events, char channelOffset, VstInt32 deltaFrames) {
 	assert(events != NULL);
 
 	for(VstInt32 i = 0; i < events->numEvents; ++i) {
@@ -93,6 +93,8 @@ void VstEventsBlock::forceMidiEventsChannelOffset(VstEvents *events, char channe
 		VstMidiEvent *midiEvent = (VstMidiEvent*) event;
 		midiEvent->midiData[0] &= kMIDILBitMask;
 		midiEvent->midiData[0] |= channelOffset;
+
+		midiEvent->deltaFrames = deltaFrames;
 	}
 }
 
@@ -117,7 +119,7 @@ VstEventsBlock VstEventsBlock::getFilteredMidiEvents(char channelOffset) {
 	return filteredEvents;
 }
 
-size_t VstEventsBlock::getMaxSizeWhenSerialized()
+VstInt32 VstEventsBlock::getMaxSizeWhenSerialized()
 {
 	VstEventsBlock testBlock;
 	std::stringbuf sb;
@@ -127,7 +129,7 @@ size_t VstEventsBlock::getMaxSizeWhenSerialized()
 	dummyArchive & testBlock;
 	testBlock.deallocate();
 
-	return size_t(sb.in_avail());
+	return VstInt32(sb.in_avail());
 }
 
 void VstEventsBlock::debugVstEvents(VstEvents const* events, char midiEventToWatch)
@@ -303,7 +305,7 @@ VstMidiEventPtr MIDIHelper::createDummy()
     midiEvent->type = kVstMidiType;
     midiEvent->byteSize = SIZEOFMIDIEVENT;
     midiEvent->deltaFrames = (midiEvent->flags = 0);
-    midiEvent->midiData[0] = 0xBF; // dummy CC
+    midiEvent->midiData[0] = char(0xBF); // dummy CC
     midiEvent->midiData[1] = (midiEvent->midiData[2] = 0);
     midiEvent->noteLength = (midiEvent->noteOffset = (midiEvent->noteOffVelocity = (midiEvent->detune = 0)));
     

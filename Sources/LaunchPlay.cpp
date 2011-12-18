@@ -10,13 +10,17 @@
 
 #include <math.h>
 
+#define BEATSPERSAMPLE(tempo, sampleRate) (tempo) / (sampleRate) / 60.0
+
 using namespace LaunchPlayVST;
 
 #pragma mark LaunchPlayBase
 LaunchPlayBase::LaunchPlayBase(audioMasterCallback audioMaster, 
                                VstInt32 numPrograms, 
                                VstInt32 numParams) 
-    : AudioEffectX(audioMaster, numPrograms, numParams) 
+    : AudioEffectX(audioMaster, numPrograms, numParams),
+	currentTempo_(kDefaultTempo), 
+	currentBeatsPerSample_(BEATSPERSAMPLE(currentTempo_, sampleRate))
 {
 
 }
@@ -36,6 +40,27 @@ bool LaunchPlayBase::getVendorString(char* text)
 {
 	vst_strncpy (text, kVendorString, kVstMaxVendorStrLen);
 	return true;
+}
+
+void LaunchPlayBase::detectTicks(VstTimeInfo *timeInfo, 
+                                      VstInt32 sampleFrames, 
+                                      double stride)
+{
+    double startPpqPos = timeInfo->ppqPos;
+
+	if(timeInfo->tempo != currentTempo_ || timeInfo->sampleRate != sampleRate) {
+		currentTempo_ = timeInfo->tempo;
+		currentBeatsPerSample_ = BEATSPERSAMPLE(currentTempo_, timeInfo->sampleRate);
+	}
+
+    double endPpqPos = startPpqPos + sampleFrames * currentBeatsPerSample_;
+    
+    double ppqPos = ceil(startPpqPos);
+    while (ppqPos - stride > startPpqPos)
+        ppqPos -= stride;
+    
+    for(;ppqPos < endPpqPos; ppqPos += stride)
+        onTick(currentTempo_, ppqPos, timeInfo->sampleRate, VstInt32((ppqPos - startPpqPos) / currentBeatsPerSample_));
 }
 
 VstInt32 LaunchPlayBase::getVendorVersion()

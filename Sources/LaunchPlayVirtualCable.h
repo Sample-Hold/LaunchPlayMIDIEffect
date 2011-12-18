@@ -11,18 +11,19 @@
 
 #include "LaunchPlay.h"
 #include "MIDIHelpers.h"
-
-#include <boost/smart_ptr.hpp>
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/interprocess/ipc/message_queue.hpp>
+#include <boost/scoped_array.hpp>
 
 namespace LaunchPlayVST {
     
     class LaunchPlayVirtualCable : public LaunchPlayBase {
 		VstInt32 channelOffsetNumber_;
+		boost::scoped_array<char> buffer_;
+
 		static VstInt32 activeInstancesCount_, maxMessageSize_;
 
         void closeAllMessageQueues();
+	protected: 
+        void onTick(double tempo, double ppq, double sampleRate, VstInt32 sampleOffset);
     public:
         LaunchPlayVirtualCable(audioMasterCallback audioMaster);
         ~LaunchPlayVirtualCable();

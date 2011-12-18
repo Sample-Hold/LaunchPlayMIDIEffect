@@ -8,18 +8,20 @@
 
 #include "LaunchPlayVirtualCable.h"
 
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/interprocess/ipc/message_queue.hpp>
+
 using namespace LaunchPlayVST;
-using namespace boost::interprocess;
 
 #pragma mark createEffectInstance
-AudioEffect* createEffectInstance (audioMasterCallback audioMaster)
+AudioEffect* createEffectInstance(audioMasterCallback audioMaster)
 {
     return new LaunchPlayVirtualCable(audioMaster); 
 }
 
 #pragma mark LaunchPlayVirtualCable
 VstInt32 LaunchPlayVirtualCable::activeInstancesCount_ = 0;
-VstInt32 LaunchPlayVirtualCable::maxMessageSize_ = 0;
+VstInt32 LaunchPlayVirtualCable::maxMessageSize_ = VstEventsBlock::getMaxSizeWhenSerialized();
 
 LaunchPlayVirtualCable::LaunchPlayVirtualCable(audioMasterCallback audioMaster)
 	: LaunchPlayBase(audioMaster, 0, 1), channelOffsetNumber_(0)
@@ -27,7 +29,7 @@ LaunchPlayVirtualCable::LaunchPlayVirtualCable(audioMasterCallback audioMaster)
     setUniqueID(kVcUniqueID);
     noTail();
 	programsAreChunks();
-    
+
     ++activeInstancesCount_;
 }
 
@@ -45,7 +47,8 @@ bool LaunchPlayVirtualCable::getEffectName(char* name)
 VstInt32 LaunchPlayVirtualCable::canDo(char *text)
 {
     if(strcmp(text, "sendVstMidiEvent") == 0 || 
-       strcmp(text, "sendVstEvents") == 0)
+       strcmp(text, "sendVstEvents") == 0 ||
+	   strcmp(text, "receiveVstTimeInfo") == 0)
         return 1;
     
 	if(strcmp(text, "offline") == 0)
@@ -117,6 +120,17 @@ VstInt32 LaunchPlayVirtualCable::getNumMidiOutputChannels()
 	return 1;
 }
 
+void LaunchPlayVirtualCable::open() 
+{
+	buffer_.reset(new char[maxMessageSize_]);
+}
+	
+void LaunchPlayVirtualCable::close() 
+{
+	if(activeInstancesCount_ == 1) // close all message queues
+		closeAllMessageQueues();
+}
+
 void LaunchPlayVirtualCable::closeAllMessageQueues()
 {
     for(VstInt32 i = 0; i <= kMaxMIDIChannelOffset; ++i) {
@@ -124,60 +138,61 @@ void LaunchPlayVirtualCable::closeAllMessageQueues()
         ss << kMessageQueueNames;
         ss << i;
         
-        message_queue::remove(ss.str().c_str()); // never throws
+        boost::interprocess::message_queue::remove(ss.str().c_str()); // never throws
     }
 }
 
-void LaunchPlayVirtualCable::open() 
+void LaunchPlayVirtualCable::onTick(double tempo, double ppq, double sampleRate, VstInt32 sampleOffset)
 {
-	if(activeInstancesCount_ == 1)
-		maxMessageSize_ = VstEventsBlock::getMaxSizeWhenSerialized();
-}
+	using namespace boost::interprocess;
 
-void LaunchPlayVirtualCable::close() 
-{
-	if(activeInstancesCount_ == 1) // close all message queues
-		closeAllMessageQueues();
-}
-
-void LaunchPlayVirtualCable::processReplacing(float** inputs, float** outputs, VstInt32 sampleFrames)
-{
-	try {
-		boost::interprocess::message_queue::size_type message_size;
+    try {
+		boost::interprocess::message_queue::size_type messageSize;
 		unsigned int priority;
         
         std::stringstream ss;
         ss << kMessageQueueNames;
         ss << channelOffsetNumber_;
         
-        char buffer[maxMessageSize_];
-        
         permissions all_permissions;
         all_permissions.set_unrestricted();
         message_queue mq(open_or_create, ss.str().c_str(), kMaxQueueMessage, maxMessageSize_, all_permissions);
 
-		if(mq.try_receive(buffer, maxMessageSize_, message_size, priority)) {
-            std::stringbuf sb;   
-            sb.pubsetbuf(buffer, message_size);
+		if(mq.try_receive(buffer_.get(), maxMessageSize_, messageSize, priority)) {
+            ss.str("");
+			ss.write(buffer_.get(), messageSize);
 
 			// load serialized object
 			VstEventsBlock eventsBlock;
-			boost::archive::binary_iarchive archive(sb);
+			boost::archive::binary_iarchive archive(ss);
 			archive >> eventsBlock;
 
 			if(eventsBlock.numEvents > 0) {
 				VstEvents *events = (VstEvents*) &eventsBlock;
 
-				// change all midi channels to channel 1
-				VstEventsBlock::forceMidiEventsChannelOffset(events, 0);
+				// change all midi channels to channel 1 - disabled
+				VstEventsBlock::forceChannelAndDeltaFrames(events, 0, sampleOffset);
 
 				sendVstEventsToHost(events);
 			}
 		}
 	}
 	catch(interprocess_exception) {
-		printf("Exception occured with virtual cable %d\n", channelOffsetNumber_+1);
+		//printf("Exception occured with virtual cable %d\n", channelOffsetNumber_+1);
 	}
+}
+
+void LaunchPlayVirtualCable::processReplacing(float** inputs, float** outputs, VstInt32 sampleFrames)
+{
+	VstTimeInfo *time = getTimeInfo(kVstTransportChanged | kVstTransportPlaying | kVstTempoValid | kVstPpqPosValid);
+    
+    if (time 
+        && time->flags & kVstTransportPlaying
+        && time->flags & kVstTempoValid
+        && time->flags & kVstPpqPosValid) 
+    {
+		detectTicks(time, sampleFrames, kStrideEight);
+    }
 
 	// null audio output
 	for(VstInt32 i = 0; i < cEffect.numOutputs; ++i)

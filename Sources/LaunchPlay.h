@@ -35,12 +35,23 @@
 #define kMaxMIDIChannelOffset	8
 #define kDefaultTempo			120
 
+#define kStrideHalf					2
+#define kStrideQuarter				1
+#define kStrideEight				.5
+#define kStrideSixteenth			.25
+
 namespace LaunchPlayVST {
     
 	class LaunchPlayBase : public AudioEffectX {
+		double currentTempo_, currentBeatsPerSample_;
 	protected:
 		static VstInt32 denormalizeValue(float const value, VstInt32 const max);
-		static float normalizeValue(VstInt32 const value, VstInt32 const max);		
+		static float normalizeValue(VstInt32 const value, VstInt32 const max);
+
+		void detectTicks(VstTimeInfo *timeInfo, 
+                         VstInt32 sampleFrames, 
+                         double stride);
+		virtual void onTick(double tempo, double ppq, double sampleRate, VstInt32 sampleOffset) = 0; 
     public:
         LaunchPlayBase(audioMasterCallback audioMaster, 
                        VstInt32 numPrograms, 

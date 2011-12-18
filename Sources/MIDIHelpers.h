@@ -60,8 +60,8 @@ namespace LaunchPlayVST {
         
         static void convertMidiEvent(VstMidiEvent *source, VstEvent *event);
 		static void muteOtherMidiEvents(VstEvents *events, char channelOffset);
-		static void forceMidiEventsChannelOffset(VstEvents *events, char channelOffset);
-		static size_t getMaxSizeWhenSerialized();
+		static void forceChannelAndDeltaFrames(VstEvents *events, char channelOffset, VstInt32 deltaFrames);
+		static VstInt32 getMaxSizeWhenSerialized();
         static void debugVstEvents(VstEvents const* events, char midiEventToWatch = 0);
         
 		VstEventsBlock getFilteredMidiEvents(char channelOffset);	

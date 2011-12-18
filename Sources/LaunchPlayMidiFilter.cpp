@@ -101,6 +101,11 @@ VstInt32 LaunchPlayMidiFilter::setChunk(void *data, VstInt32 byteSize, bool isPr
 	return 0;
 }
 
+void LaunchPlayMidiFilter::onTick(double tempo, double ppq, double sampleRate, VstInt32 sampleOffset)
+{
+	// not used
+}
+
 VstInt32 LaunchPlayMidiFilter::processEvents(VstEvents *events) 
 {
 	assert(events != NULL);

@@ -16,6 +16,8 @@ namespace LaunchPlayVST {
     
     class LaunchPlayMidiFilter : public LaunchPlayBase {
 		VstInt32 channelOffsetNumber_;
+	protected:
+		void onTick(double tempo, double ppq, double sampleRate, VstInt32 sampleOffset);
     public:
         LaunchPlayMidiFilter(audioMasterCallback audioMaster);
         ~LaunchPlayMidiFilter();

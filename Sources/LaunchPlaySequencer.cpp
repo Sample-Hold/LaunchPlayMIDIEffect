@@ -16,8 +16,6 @@
 #include <boost/interprocess/ipc/message_queue.hpp>
 #include <boost/thread.hpp>
 
-#define BEATSPERSAMPLE(tempo, sampleRate) (tempo) / (sampleRate) / 60.0
-
 using namespace LaunchPlayVST;
 
 #pragma mark createEffectInstance
@@ -64,17 +62,17 @@ void SequencerBase::sendEventsUsingVirtualCable(size_t eventsCount,
             if(filteredEventsBlock.numEvents == 0)
                 continue;
 
-            std::stringbuf sb;
-            boost::archive::binary_oarchive archive(sb);
+            std::stringstream ss;
+            boost::archive::binary_oarchive archive(ss);
             archive << filteredEventsBlock;
                 
             if(async)
             {
-                boost::thread t(&SequencerBase::sendMessage, this, sb.str(), channelOffset);
+                boost::thread t(&SequencerBase::sendMessage, this, ss.str(), channelOffset);
                 t.detach();
             }
             else
-                sendMessage(sb.str(), channelOffset);
+                sendMessage(ss.str(), channelOffset);
         }
     }
     catch(...) { buffer.deallocate(); return; }
@@ -104,7 +102,7 @@ void SequencerBase::sendEventsToHost(LaunchPlayBase *plugin, Routing routing)
 	assert(midiEventsCount() <= VstEventsBlock::kVstEventsBlockSize && 
            feedbackEventsCount() <= VstEventsBlock::kVstEventsBlockSize);
     
-    bool asyncImpl = true; // this may solve ASIO dropout issue when virtual cable is used
+	bool asyncImpl = false; // not sure I should enable it...
 
     switch (routing) {
         case midi:
@@ -127,7 +125,7 @@ void SequencerBase::sendEventsToHost(LaunchPlayBase *plugin, Routing routing)
             VstMidiEventPtr dummyMidi = MIDIHelper::createDummy();
             
             dummyEvent.numEvents = 1;
-            dummyEvent.events[0] = (VstEvent*) dummyMidi. get();
+            dummyEvent.events[0] = (VstEvent*) dummyMidi.get();
             plugin->sendVstEventsToHost(&dummyEvent);
             
             break;
@@ -628,8 +626,7 @@ void LaunchPadSequencer::processUserEvents(VstEvents *eventPtr)
 
 #pragma mark LaunchPlaySequencer
 LaunchPlaySequencer::LaunchPlaySequencer(audioMasterCallback audioMaster)
-: LaunchPlayBase(audioMaster, 0, 11), sequencer_(new LaunchPadSequencer), 
-currentTempo_(kDefaultTempo), currentRouting_(midi)
+: LaunchPlayBase(audioMaster, 0, 11), sequencer_(new LaunchPadSequencer), currentRouting_(midi)
 { 
     setUniqueID(kSeqUniqueID);
     noTail();
@@ -645,7 +642,6 @@ LaunchPlaySequencer::~LaunchPlaySequencer()
 void LaunchPlaySequencer::open()
 {
     sequencer_->init();
-	currentBeatsPerSample_ = BEATSPERSAMPLE(currentTempo_, sampleRate);
 }
 
 bool LaunchPlaySequencer::getEffectName(char* name)
@@ -883,27 +879,6 @@ void LaunchPlaySequencer::processReplacing(float** inputs, float** outputs, VstI
 	// null audio output
 	for(VstInt32 i = 0; i < cEffect.numOutputs; ++i)
 		memset(outputs[i], 0, sampleFrames*sizeof(float));
-}
-
-void LaunchPlaySequencer::detectTicks(VstTimeInfo *timeInfo, 
-                                      VstInt32 sampleFrames, 
-                                      double stride)
-{
-    double startPpqPos = timeInfo->ppqPos;
-
-	if(timeInfo->tempo != currentTempo_ || timeInfo->sampleRate != sampleRate) {
-		currentTempo_ = timeInfo->tempo;
-		currentBeatsPerSample_ = BEATSPERSAMPLE(currentTempo_, timeInfo->sampleRate);
-	}
-
-    double endPpqPos = startPpqPos + sampleFrames * currentBeatsPerSample_;
-    
-    double ppqPos = ceil(startPpqPos);
-    while (ppqPos - stride > startPpqPos)
-        ppqPos -= stride;
-    
-    for(;ppqPos < endPpqPos; ppqPos += stride)
-        onTick(currentTempo_, ppqPos, timeInfo->sampleRate, VstInt32((ppqPos - startPpqPos) / currentBeatsPerSample_));
 }
 
 void LaunchPlaySequencer::onTick(double tempo, double ppq, double sampleRate, VstInt32 sampleOffset)

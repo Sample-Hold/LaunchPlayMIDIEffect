@@ -3,8 +3,8 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
     <UserLibraries>C:\Users\Fred\Documents\Visual Studio 2010\UserLibraries</UserLibraries>
-    <VstHostDir>C:\Program Files (x86)\Ableton\Live 8.2\Program</VstHostDir>
-    <VstHostExecutable>Live 8.2.exe</VstHostExecutable>
+    <VstHostDir>C:\Program Files\Ableton\Live 8.2.7\Program</VstHostDir>
+    <VstHostExecutable>Live 8.2.7.exe</VstHostExecutable>
     <VstPluginsDir>$(ProgramFiles)\Steinberg\VstPlugins</VstPluginsDir>
   </PropertyGroup>
   <PropertyGroup />

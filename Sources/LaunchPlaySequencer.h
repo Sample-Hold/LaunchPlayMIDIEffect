@@ -17,11 +17,6 @@
 #include <boost/utility.hpp>
 #include <boost/smart_ptr.hpp>
 
-#define kStrideHalf					2
-#define kStrideQuarter				1
-#define kStrideEight				.5
-#define kStrideSixteenth			.25
-
 #define kLaunchPadWidth     		8
 #define kLaunchPadHeight    		8
 #define kInstrChannelOffset			1
@@ -167,14 +162,10 @@ namespace LaunchPlayVST {
     };
 
     class LaunchPlaySequencer : public LaunchPlayBase {
-		double currentTempo_, currentBeatsPerSample_;
 		Routing currentRouting_;
         boost::shared_ptr<SequencerBase> sequencer_;
-    protected: 
-        void detectTicks(VstTimeInfo *timeInfo, 
-                         VstInt32 sampleFrames, 
-                         double stride);
-        void onTick(double tempo, double ppq, double sampleRate, VstInt32 sampleOffset);
+	protected:
+		void onTick(double tempo, double ppq, double sampleRate, VstInt32 sampleOffset); 
     public:
         LaunchPlaySequencer(audioMasterCallback audioMaster);
         ~LaunchPlaySequencer();
