@@ -10,6 +10,11 @@
 
 #include <math.h>
 #include <time.h>
+#include <algorithm>
+#include <functional>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/interprocess/ipc/message_queue.hpp>
+#include <boost/thread.hpp>
 
 #define BEATSPERSAMPLE(tempo, sampleRate) (tempo) / (sampleRate) / 60.0
 
@@ -22,110 +27,110 @@ AudioEffect* createEffectInstance (audioMasterCallback audioMaster)
 }
 
 #pragma mark SequencerBase
-SequencerBase::~SequencerBase()
+SequencerBase::~SequencerBase() // to avoid linker error
 {
     
 }
 
-void SequencerBase::init()
+void SequencerBase::sendEventsUsingMIDI(LaunchPlayBase *plugin,  
+                                        size_t eventsCount, 
+                                        FlushFunction flush)
 {
-	maxMessageSize_ = VstEventsBlock::getMaxSizeWhenSerialized();
-}
-
-void SequencerBase::close()
-{
-	closeAllMessageQueues();
-}
-
-void SequencerBase::sendMidiEventsToHost(LaunchPlayBase *plugin, VstEventsBlock *buffer, Routing routing)
-{
-	assert(plugin != NULL && midiEventsCount() <= VstEventsBlock::kVstEventsBlockSize);
-
-	if(midiEventsCount() == 0)
-		return;
-
-	buffer->allocate(midiEventsCount());
+    VstEventsBlock buffer;
     
     try {
-        flushMidiEvents(buffer);
-        
-        if(routing == midi) { // classic MIDI routing on channels 2-9
-            VstEvents *events = (VstEvents*) buffer;
-            plugin->sendVstEventsToHost(events);
-        }
-        
-        if(routing == virtualCable) { // virtual MIDI cable 
-            using namespace boost::interprocess;
-            using namespace boost::posix_time;
+        buffer.allocate(eventsCount);
+        (this->*flush)(buffer);
+        plugin->sendVstEventsToHost((VstEvents*) &buffer);
+    }
+    catch(...) { buffer.deallocate(); return; }
+    
+    buffer.deallocate();
+}
 
-            for(VstInt32 channel = kInstrChannelOffset; channel <= kMaxMIDIChannelOffset; ++channel) {
-                VstEventsBlock filteredEventsBlock = buffer->getFilteredMidiEvents(channel);
+void SequencerBase::sendEventsUsingVirtualCable(size_t eventsCount, 
+                                                FlushFunction flush,
+                                                bool async)
+{
+    VstEventsBlock buffer;
+    
+    try {
+        buffer.allocate(eventsCount);
+        (this->*flush)(buffer);
+
+        for(VstInt32 channelOffset = 0; channelOffset <= kMaxMIDIChannelOffset; ++channelOffset) {
+            VstEventsBlock filteredEventsBlock = buffer.getFilteredMidiEvents(channelOffset);
+            
+            if(filteredEventsBlock.numEvents == 0)
+                continue;
+
+            std::stringbuf sb;
+            boost::archive::binary_oarchive archive(sb);
+            archive << filteredEventsBlock;
                 
-                if(filteredEventsBlock.numEvents == 0)
-                    continue;
-                
-                try {
-                    std::stringstream ss;
-                    ss << kMessageQueueNames;
-                    ss << channel;
-
-					permissions all_permissions;
-					all_permissions.set_unrestricted();
-					boost::interprocess::message_queue mq(boost::interprocess::open_or_create, 
-															ss.str().c_str(), kMaxQueueMessage, 
-															maxMessageSize_, 
-															all_permissions);
-
-                    std::stringbuf sb;
-                    boost::archive::binary_oarchive archive(sb);
-                    archive << filteredEventsBlock;
-                    
-                    std::string serializedObject(sb.str());
-                    mq.try_send(serializedObject.c_str(), serializedObject.length(), 0);
-                }
-                catch(...) {
-                    //printf("Cannot communicate with virtual cable %d\n", channel);
-                }
+            if(async)
+            {
+                boost::thread t(&SequencerBase::sendMessage, this, sb.str(), channelOffset);
+                t.detach();
             }
+            else
+                sendMessage(sb.str(), channelOffset);
         }
     }
-    catch(...) { buffer->deallocate(); }
+    catch(...) { buffer.deallocate(); return; }
     
-    buffer->deallocate();
+    buffer.deallocate();
 }
 
-void SequencerBase::sendFeedbackEventsToHost(LaunchPlayBase *plugin, VstEventsBlock *buffer)
+void SequencerBase::sendMessage(std::string const message, VstInt32 const channelOffset) const
 {
-    assert(plugin != NULL && feedbackEventsCount() <= VstEventsBlock::kVstEventsBlockSize);
-
-	if(feedbackEventsCount() == 0)
-		return;
-
-    buffer->allocate(feedbackEventsCount());
+    using namespace boost::interprocess;
     
     try {
-        flushFeedbackEvents(buffer);
-        VstEvents *events = (VstEvents*) buffer;
-        plugin->sendVstEventsToHost(events);
-    }
-    catch(...) { buffer->deallocate(); }
-        
-    buffer->deallocate();
-}
-
-void SequencerBase::closeAllMessageQueues()
-{
-    for(VstInt32 i = 0; i <= kMaxMIDIChannelOffset; ++i) {
         std::stringstream ss;
         ss << kMessageQueueNames;
-        ss << i;
+        ss << channelOffset;
         
-        try {
-            boost::interprocess::message_queue::remove(ss.str().c_str());
-        }
-        catch(boost::interprocess::interprocess_exception) {
-            //printf("Error closing channel %d\n", i+1);
-        }
+        message_queue mq(open_only, ss.str().c_str());
+        mq.try_send(message.c_str(), message.length(), 0);
+    }
+    catch(interprocess_exception) {
+        //printf("Cannot communicate with virtual cable %d\n", channelOffset);
+    }
+}
+
+void SequencerBase::sendEventsToHost(LaunchPlayBase *plugin, Routing routing)
+{
+	assert(midiEventsCount() <= VstEventsBlock::kVstEventsBlockSize && 
+           feedbackEventsCount() <= VstEventsBlock::kVstEventsBlockSize);
+    
+    bool asyncImpl = true; // this may solve ASIO dropout issue when virtual cable is used
+
+    switch (routing) {
+        case midi:
+            if(midiEventsCount() > 0)
+                sendEventsUsingMIDI(plugin, midiEventsCount(), &SequencerBase::flushMidiEvents);
+            
+            if(feedbackEventsCount() > 0)
+                sendEventsUsingMIDI(plugin, feedbackEventsCount(), &SequencerBase::flushFeedbackEvents);
+
+            break;
+        case virtualCable:
+            if(midiEventsCount() > 0)
+                sendEventsUsingVirtualCable(midiEventsCount(), &SequencerBase::flushMidiEvents, asyncImpl);
+            
+            if(feedbackEventsCount() > 0)
+                sendEventsUsingVirtualCable(feedbackEventsCount(), &SequencerBase::flushFeedbackEvents, asyncImpl);
+            
+            // trick for some hosts that stop sending timeinfo after 1 mesure if no midi event has been sent
+            VstEvents dummyEvent;
+            VstMidiEventPtr dummyMidi = MIDIHelper::createDummy();
+            
+            dummyEvent.numEvents = 1;
+            dummyEvent.events[0] = (VstEvent*) dummyMidi. get();
+            plugin->sendVstEventsToHost(&dummyEvent);
+            
+            break;
     }
 }
 
@@ -338,10 +343,10 @@ size_t GridSequencer::midiEventsCount() const
     return midiEvents_.size();
 }
 
-void GridSequencer::flushMidiEvents(VstEventsBlock *buffer)
+void GridSequencer::flushMidiEvents(VstEventsBlock &buffer)
 {
     for (size_t i = 0; i < midiEvents_.size(); ++i)        
-        VstEventsBlock::convertMidiEvent(midiEvents_[i].get(), buffer->events[i]);
+        VstEventsBlock::convertMidiEvent(midiEvents_[i].get(), buffer.events[i]);
     
     midiEvents_.clear();
 }
@@ -512,18 +517,16 @@ size_t LaunchPadSequencer::feedbackEventsCount() const
     return eventsBuffer_.size();
 }
 
-void LaunchPadSequencer::flushFeedbackEvents(VstEventsBlock *buffer)
+void LaunchPadSequencer::flushFeedbackEvents(VstEventsBlock &buffer)
 {
     for (size_t i = 0; i < eventsBuffer_.size(); ++i)        
-        VstEventsBlock::convertMidiEvent(eventsBuffer_[i].get(), buffer->events[i]);
+        VstEventsBlock::convertMidiEvent(eventsBuffer_[i].get(), buffer.events[i]);
 
     eventsBuffer_.clear();
 }
 
 void LaunchPadSequencer::init()
 {
-	SequencerBase::init();
-
     resetLaunchPad(0);
 	changeDirection(currentDirection_, 1);
 	changeActiveChannel(currentChannelOffset_, 1);
@@ -626,7 +629,7 @@ void LaunchPadSequencer::processUserEvents(VstEvents *eventPtr)
 #pragma mark LaunchPlaySequencer
 LaunchPlaySequencer::LaunchPlaySequencer(audioMasterCallback audioMaster)
 : LaunchPlayBase(audioMaster, 0, 11), sequencer_(new LaunchPadSequencer), 
-buffer_(new VstEventsBlock), currentTempo_(kDefaultTempo), currentRouting_(midi)
+currentTempo_(kDefaultTempo), currentRouting_(midi)
 { 
     setUniqueID(kSeqUniqueID);
     noTail();
@@ -645,11 +648,6 @@ void LaunchPlaySequencer::open()
 	currentBeatsPerSample_ = BEATSPERSAMPLE(currentTempo_, sampleRate);
 }
 
-void LaunchPlaySequencer::close()
-{
-	sequencer_->close();
-}
-
 bool LaunchPlaySequencer::getEffectName(char* name)
 {
 	vst_strncpy (name, kSequencerName, kVstMaxEffectNameLen);
@@ -659,6 +657,8 @@ bool LaunchPlaySequencer::getEffectName(char* name)
 VstInt32 LaunchPlaySequencer::canDo(char *text)
 {
     if(strcmp(text, "sendVstMidiEvent") == 0 || 
+       strcmp(text, "sendVstEvents") == 0 || 
+       strcmp(text, "receiveVstEvents") == 0 ||
 	   strcmp(text, "receiveVstMidiEvent") == 0 ||
        strcmp(text, "receiveVstTimeInfo") == 0)
         return 1;
@@ -908,16 +908,13 @@ void LaunchPlaySequencer::detectTicks(VstTimeInfo *timeInfo,
 
 void LaunchPlaySequencer::onTick(double tempo, double ppq, double sampleRate, VstInt32 sampleOffset)
 {
-    assert(sequencer_.get() != NULL && sampleOffset >= 0);
+    assert(sequencer_.get() != NULL);
 
     // move sequencer forward
     sequencer_->processForward(tempo, ppq, sampleRate, sampleOffset);
-
-    // send feedback events to Host
-    sequencer_->sendFeedbackEventsToHost(this, buffer_.get());
     
-    // send generated notes to Host
-	sequencer_->sendMidiEventsToHost(this, buffer_.get(), currentRouting_);
+    // send generated notes and feedback events to VST Host
+	sequencer_->sendEventsToHost(this, currentRouting_);
 }
 
 VstInt32 LaunchPlaySequencer::processEvents(VstEvents *events) 

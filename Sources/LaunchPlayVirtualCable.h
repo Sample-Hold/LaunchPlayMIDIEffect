@@ -20,7 +20,6 @@ namespace LaunchPlayVST {
     
     class LaunchPlayVirtualCable : public LaunchPlayBase {
 		VstInt32 channelOffsetNumber_;
-		boost::shared_array<char> buffer_;
 		static VstInt32 activeInstancesCount_, maxMessageSize_;
 
         void closeAllMessageQueues();

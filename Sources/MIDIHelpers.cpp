@@ -296,6 +296,20 @@ VstMidiEventPtr MIDIHelper::createNoteOff(VstInt32 baseNoteOffset,
     return midiEvent;
 }
 
+VstMidiEventPtr MIDIHelper::createDummy()
+{
+    VstMidiEventPtr midiEvent(new VstMidiEvent);
+    
+    midiEvent->type = kVstMidiType;
+    midiEvent->byteSize = SIZEOFMIDIEVENT;
+    midiEvent->deltaFrames = (midiEvent->flags = 0);
+    midiEvent->midiData[0] = 0xBF; // dummy CC
+    midiEvent->midiData[1] = (midiEvent->midiData[2] = 0);
+    midiEvent->noteLength = (midiEvent->noteOffset = (midiEvent->noteOffVelocity = (midiEvent->detune = 0)));
+    
+    return midiEvent;
+}
+
 #pragma mark LaunchPadHelper
 bool LaunchPadHelper::isValidMessage(MIDIMessage const& message)
 {

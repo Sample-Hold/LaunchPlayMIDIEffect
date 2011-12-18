@@ -57,12 +57,14 @@ namespace LaunchPlayVST {
         
         void allocate(size_t const size);
         void deallocate();
+        
         static void convertMidiEvent(VstMidiEvent *source, VstEvent *event);
 		static void muteOtherMidiEvents(VstEvents *events, char channelOffset);
 		static void forceMidiEventsChannelOffset(VstEvents *events, char channelOffset);
 		static size_t getMaxSizeWhenSerialized();
-		VstEventsBlock getFilteredMidiEvents(char channelOffset);	
         static void debugVstEvents(VstEvents const* events, char midiEventToWatch = 0);
+        
+		VstEventsBlock getFilteredMidiEvents(char channelOffset);	
 
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int version)
@@ -135,6 +137,8 @@ namespace LaunchPlayVST {
 										VstInt32 noteOffset, 
 										VstInt32 deltaFrames,
 										char channelOffset = 0);
+        static VstMidiEventPtr createDummy();
+        
     };
     
     struct LaunchPadUserInput {

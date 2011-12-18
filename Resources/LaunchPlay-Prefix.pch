@@ -8,6 +8,8 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
+#include <sstream>
 #include <audioeffectx.h>
 #include <boost/utility.hpp>
 #include <boost/smart_ptr.hpp>

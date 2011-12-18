@@ -44,7 +44,8 @@ bool LaunchPlayVirtualCable::getEffectName(char* name)
 
 VstInt32 LaunchPlayVirtualCable::canDo(char *text)
 {
-    if(strcmp(text, "sendVstMidiEvent") == 0)
+    if(strcmp(text, "sendVstMidiEvent") == 0 || 
+       strcmp(text, "sendVstEvents") == 0)
         return 1;
     
 	if(strcmp(text, "offline") == 0)
@@ -123,12 +124,7 @@ void LaunchPlayVirtualCable::closeAllMessageQueues()
         ss << kMessageQueueNames;
         ss << i;
         
-        try {
-            message_queue::remove(ss.str().c_str());
-        }
-        catch(interprocess_exception const& e) {
-            printf("Error closing channel %d: %s\n", i+1, e.what());
-        }
+        message_queue::remove(ss.str().c_str()); // never throws
     }
 }
 
@@ -136,8 +132,6 @@ void LaunchPlayVirtualCable::open()
 {
 	if(activeInstancesCount_ == 1)
 		maxMessageSize_ = VstEventsBlock::getMaxSizeWhenSerialized();
-
-	buffer_.reset(new char[maxMessageSize_]);
 }
 
 void LaunchPlayVirtualCable::close() 
@@ -156,19 +150,19 @@ void LaunchPlayVirtualCable::processReplacing(float** inputs, float** outputs, V
         ss << kMessageQueueNames;
         ss << channelOffsetNumber_;
         
+        char buffer[maxMessageSize_];
+        
         permissions all_permissions;
         all_permissions.set_unrestricted();
         message_queue mq(open_or_create, ss.str().c_str(), kMaxQueueMessage, maxMessageSize_, all_permissions);
 
-		if(mq.try_receive(buffer_.get(), maxMessageSize_, message_size, priority)) {
-			std::stringstream ss;
-
-			// copy received object to string buffer
-			ss.write(buffer_.get(), message_size);
+		if(mq.try_receive(buffer, maxMessageSize_, message_size, priority)) {
+            std::stringbuf sb;   
+            sb.pubsetbuf(buffer, message_size);
 
 			// load serialized object
 			VstEventsBlock eventsBlock;
-			boost::archive::binary_iarchive archive(ss);
+			boost::archive::binary_iarchive archive(sb);
 			archive >> eventsBlock;
 
 			if(eventsBlock.numEvents > 0) {
@@ -181,8 +175,8 @@ void LaunchPlayVirtualCable::processReplacing(float** inputs, float** outputs, V
 			}
 		}
 	}
-	catch(boost::interprocess::interprocess_exception const& e) {
-		printf("Error with virtual cable %d: %s\n", channelOffsetNumber_+1, e.what());
+	catch(interprocess_exception) {
+		printf("Exception occured with virtual cable %d\n", channelOffsetNumber_+1);
 	}
 
 	// null audio output
