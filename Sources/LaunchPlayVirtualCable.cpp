@@ -191,7 +191,7 @@ void LaunchPlayVirtualCable::processReplacing(float** inputs, float** outputs, V
         && time->flags & kVstTempoValid
         && time->flags & kVstPpqPosValid) 
     {
-		detectTicks(time, sampleFrames, kStrideEight);
+		detectTicks(time, sampleFrames, kStrideSixteenth); // 1/16th notes
     }
 
 	// null audio output

@@ -17,9 +17,6 @@
 		B6004F9E14999332005EDC62 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B6D35B51148AB03700CE3830 /* InfoPlist.strings */; };
 		B6004FA814999426005EDC62 /* LaunchPlayVirtualCable.h in Headers */ = {isa = PBXBuildFile; fileRef = B6004F851499932E005EDC62 /* LaunchPlayVirtualCable.h */; };
 		B6004FA914999431005EDC62 /* LaunchPlayVirtualCable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6004F841499932E005EDC62 /* LaunchPlayVirtualCable.cpp */; };
-		B61E0EE9149D509C0071D393 /* LaunchPlaySequencer.vst in CopyFiles */ = {isa = PBXBuildFile; fileRef = B6D35B31148AAF0D00CE3830 /* LaunchPlaySequencer.vst */; };
-		B61E0EEA149D509C0071D393 /* LaunchPlayMidiFilter.vst in CopyFiles */ = {isa = PBXBuildFile; fileRef = B62EC440149021D9002EF0E8 /* LaunchPlayMidiFilter.vst */; };
-		B61E0EEB149D509C0071D393 /* LaunchPlayVirtualCable.vst in CopyFiles */ = {isa = PBXBuildFile; fileRef = B6004FA214999332005EDC62 /* LaunchPlayVirtualCable.vst */; };
 		B62EC41C14901ED3002EF0E8 /* LaunchPlaySequencer.h in Headers */ = {isa = PBXBuildFile; fileRef = B62EC41B14901ED3002EF0E8 /* LaunchPlaySequencer.h */; };
 		B62EC42114901F5D002EF0E8 /* LaunchPlaySequencer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B62EC42014901F5D002EF0E8 /* LaunchPlaySequencer.cpp */; };
 		B62EC42C149021D9002EF0E8 /* LaunchPlay.h in Headers */ = {isa = PBXBuildFile; fileRef = B6D35B11148AA30500CE3830 /* LaunchPlay.h */; };
@@ -58,21 +55,6 @@
 			remoteInfo = LaunchPlayVirtualCable;
 		};
 /* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		B61E0EE7149D508C0071D393 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "$(USER_LIBRARY_DIR)/Audio/Plug-Ins/VST";
-			dstSubfolderSpec = 0;
-			files = (
-				B61E0EE9149D509C0071D393 /* LaunchPlaySequencer.vst in CopyFiles */,
-				B61E0EEA149D509C0071D393 /* LaunchPlayMidiFilter.vst in CopyFiles */,
-				B61E0EEB149D509C0071D393 /* LaunchPlayVirtualCable.vst in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		B6004F841499932E005EDC62 /* LaunchPlayVirtualCable.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LaunchPlayVirtualCable.cpp; sourceTree = "<group>"; };
@@ -247,7 +229,6 @@
 				B6E46CD7148C572500B27E81 /* Headers */,
 				B6D35B2D148AAF0D00CE3830 /* Sources */,
 				B6D35B2F148AAF0D00CE3830 /* Resources */,
-				B61E0EE7149D508C0071D393 /* CopyFiles */,
 			);
 			buildRules = (
 			);

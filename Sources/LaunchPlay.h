@@ -35,10 +35,10 @@
 #define kMaxMIDIChannelOffset	8
 #define kDefaultTempo			120
 
-#define kStrideHalf					2
-#define kStrideQuarter				1
-#define kStrideEight				.5
-#define kStrideSixteenth			.25
+#define kStrideHalf				2
+#define kStrideQuarter			1
+#define kStrideEight			.5
+#define kStrideSixteenth		.25
 
 namespace LaunchPlayVST {
     
