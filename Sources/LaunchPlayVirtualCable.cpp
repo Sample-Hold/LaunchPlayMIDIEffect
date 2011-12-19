@@ -170,8 +170,8 @@ void LaunchPlayVirtualCable::onTick(double tempo, double ppq, double sampleRate,
 			if(eventsBlock.numEvents > 0) {
 				VstEvents *events = (VstEvents*) &eventsBlock;
 
-				// change all midi channels to channel 1 - disabled
-				VstEventsBlock::forceChannelAndDeltaFrames(events, 0, sampleOffset);
+				// change all midi channels to channel 1
+				VstEventsBlock::forceChannel(events, 0);
 
 				sendVstEventsToHost(events);
 			}
@@ -191,7 +191,7 @@ void LaunchPlayVirtualCable::processReplacing(float** inputs, float** outputs, V
         && time->flags & kVstTempoValid
         && time->flags & kVstPpqPosValid) 
     {
-		detectTicks(time, sampleFrames, kStrideSixteenth); // 1/16th notes
+		detectTicks(time, sampleFrames, kStrideThirtysecond); // 1/32th notes
     }
 
 	// null audio output

@@ -39,6 +39,7 @@
 #define kStrideQuarter			1
 #define kStrideEight			.5
 #define kStrideSixteenth		.25
+#define kStrideThirtysecond		.125
 
 namespace LaunchPlayVST {
     

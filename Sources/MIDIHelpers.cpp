@@ -81,7 +81,7 @@ void VstEventsBlock::muteOtherMidiEvents(VstEvents *events, char channelOffset)
 	}
 }
 
-void VstEventsBlock::forceChannelAndDeltaFrames(VstEvents *events, char channelOffset, VstInt32 deltaFrames) {
+void VstEventsBlock::forceChannel(VstEvents *events, char channelOffset) {
 	assert(events != NULL);
 
 	for(VstInt32 i = 0; i < events->numEvents; ++i) {
@@ -93,8 +93,6 @@ void VstEventsBlock::forceChannelAndDeltaFrames(VstEvents *events, char channelO
 		VstMidiEvent *midiEvent = (VstMidiEvent*) event;
 		midiEvent->midiData[0] &= kMIDILBitMask;
 		midiEvent->midiData[0] |= channelOffset;
-
-		midiEvent->deltaFrames = deltaFrames;
 	}
 }
 
