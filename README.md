@@ -18,7 +18,7 @@ Yet another sequencer? My DAW already is a sequencer!
 
 LaunchPlay is a generative sequencer for use with your LaunchPad, inspired by Batuhan Bozkurt's work on [Otomata](http://www.earslap.com/). 
 It turns your Novation LaunchPad into a fancy remote to generate random music. And you can generate notes for up to 8 virtual or physical instruments.
-Please visit [sample-hold.com](http://sample-hold.com/) for a detailed explanation on how to use it.  
+Please visit [sample-hold.github.io](http://sample-hold.github.io) for a detailed explanation on how to use it.  
 
 How to compile sources
 ----------------------
